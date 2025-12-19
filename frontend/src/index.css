@@ -1,0 +1,85 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply box-border;
+  }
+  
+  body {
+    @apply m-0 p-0 font-sans overflow-x-hidden;
+  }
+  
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-gray-100;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-accent-500 rounded-full;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-accent-600;
+  }
+}
+
+@layer components {
+  /* Custom component styles */
+  .btn-primary {
+    @apply px-6 py-3 bg-accent-500 text-white rounded-lg font-semibold 
+           hover:bg-accent-600 transition-all duration-300 
+           focus:outline-none focus:ring-2 focus:ring-accent-500 focus:ring-offset-2
+           active:scale-95 shadow-md hover:shadow-lg;
+  }
+  
+  .btn-secondary {
+    @apply px-6 py-3 bg-white text-accent-500 border-2 border-accent-500 rounded-lg font-semibold 
+           hover:bg-accent-500 hover:text-white transition-all duration-300 
+           focus:outline-none focus:ring-2 focus:ring-accent-500 focus:ring-offset-2
+           active:scale-95;
+  }
+  
+  .input-field {
+    @apply w-full px-4 py-3 border border-gray-300 rounded-lg 
+           focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent
+           transition-all duration-200 bg-gray-50 hover:bg-white;
+  }
+  
+  .card {
+    @apply bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300
+           transform hover:-translate-y-1 border border-gray-100;
+  }
+  
+  .page-container {
+    @apply container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl;
+  }
+  
+  .section-title {
+    @apply text-3xl md:text-4xl lg:text-5xl font-bold text-secondary-900 mb-6;
+  }
+  
+  .section-subtitle {
+    @apply text-lg md:text-xl text-secondary-600 mb-8;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-r from-accent-500 to-primary-600 bg-clip-text text-transparent;
+  }
+  
+  .animate-on-scroll {
+    @apply opacity-0 translate-y-4 transition-all duration-700;
+  }
+  
+  .animate-on-scroll.visible {
+    @apply opacity-100 translate-y-0;
+  }
+}
