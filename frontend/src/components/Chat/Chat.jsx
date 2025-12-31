@@ -33,11 +33,18 @@ const Chat = () => {
       if (token && !socketService.isConnected()) {
         socketService.connect(token);
       }
+      
+      // Listen for new messages in real-time
+      socketService.on("newMessage", (message) => {
+        // This will be handled by MessageBox component
+        console.log("New message received:", message);
+      });
     }
 
     return () => {
       // Don't disconnect on unmount as we want to keep connection active
       // Socket will be disconnected on logout
+      socketService.off("newMessage");
     };
   }, [isAuthorized, user]);
 

@@ -1,8 +1,12 @@
-import React from "react";
-import { FaBuilding, FaSuitcase, FaUsers, FaUserPlus } from "react-icons/fa";
+import React, { useContext } from "react";
+import { FaBuilding, FaSuitcase, FaUsers, FaUserPlus, FaRobot } from "react-icons/fa";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import { Context } from "../../main";
 
 const HeroSection = () => {
+  const { user } = useContext(Context);
+  
   const details = [
     {
       id: 1,
@@ -113,6 +117,37 @@ const HeroSection = () => {
             </motion.div>
           ))}
         </motion.div>
+
+        {/* AI Tools Banner for Job Seekers */}
+        {user && user.role === "Job Seeker" && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8, duration: 0.5 }}
+            className="mt-12"
+          >
+            <Link to="/tools">
+              <div className="bg-gradient-to-r from-[#2d5649] to-[#3d7359] rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02]">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-white/20 p-4 rounded-full">
+                      <FaRobot className="text-4xl text-white" />
+                    </div>
+                    <div className="text-white">
+                      <h3 className="text-2xl font-bold mb-2">AI Career Tools & Resume Toolkit</h3>
+                      <p className="text-white/90">
+                        Access free AI-powered tools to optimize your resume and boost your job search
+                      </p>
+                    </div>
+                  </div>
+                  <button className="px-8 py-3 bg-white text-[#2d5649] font-bold rounded-lg hover:bg-gray-100 transition-colors whitespace-nowrap">
+                    Explore Tools →
+                  </button>
+                </div>
+              </div>
+            </Link>
+          </motion.div>
+        )}
       </div>
     </div>
   );

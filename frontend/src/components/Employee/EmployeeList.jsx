@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { getAllEmployees } from "../../services/api";
-import { FaSearch, FaUserCircle, FaMapMarkerAlt } from "react-icons/fa";
+import { FaSearch, FaUserCircle, FaMapMarkerAlt, FaComments } from "react-icons/fa";
 import toast from "react-hot-toast";
 
 const EmployeeList = () => {
@@ -11,6 +11,7 @@ const EmployeeList = () => {
   const [skills, setSkills] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchEmployees();
@@ -102,12 +103,12 @@ const EmployeeList = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {employees.map((employee) => (
-                  <Link
+                {emdiv
                     key={employee._id}
-                    to={`/employee/${employee._id}`}
                     className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden"
                   >
+                    <Link to={`/employee/${employee._id}`} className="block">
+                    >
                     <div className="p-6">
                       {/* Profile Photo */}
                       <div className="flex justify-center mb-4">
@@ -184,6 +185,21 @@ const EmployeeList = () => {
                       </button>
                     </div>
                   </Link>
+
+                  {/* Message Button */}
+                  <div className="px-6 py-4 border-t">
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        navigate(`/chat?userId=${employee._id}`);
+                      }}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-[#2d5649] text-white font-semibold rounded-lg hover:bg-[#3d7359] transition-colors"
+                    >
+                      <FaComments />
+                      Send Message
+                    </button>
+                  </div>
+                </div>
                 ))}
               </div>
             )}

@@ -69,6 +69,11 @@ const Navbar = () => {
                 Browse Talent
               </NavLink>
             )}
+            {user && user.role === "Job Seeker" && (
+              <NavLink to="/tools" onClick={() => setShow(false)}>
+                AI Tools
+              </NavLink>
+            )}
             <NavLink to="/applications/me" onClick={() => setShow(false)}>
               {user && user.role === "Employer"
                 ? "Applications"
@@ -132,6 +137,11 @@ const Navbar = () => {
                 {user && user.role === "Employer" && (
                   <MobileNavLink to="/employees" onClick={() => setShow(false)}>
                     Browse Talent
+                  </MobileNavLink>
+                )}
+                {user && user.role === "Job Seeker" && (
+                  <MobileNavLink to="/tools" onClick={() => setShow(false)}>
+                    AI Tools
                   </MobileNavLink>
                 )}
                 <MobileNavLink to="/applications/me" onClick={() => setShow(false)}>

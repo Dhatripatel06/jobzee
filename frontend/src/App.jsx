@@ -16,6 +16,7 @@ import MyApplications from "./components/Application/MyApplications";
 import EmployeeList from "./components/Employee/EmployeeList";
 import EmployeeProfile from "./components/Employee/EmployeeProfile";
 import Chat from "./components/Chat/Chat";
+import ResumeToolkit from "./components/Tools/ResumeToolkit";
 import NotFound from "./components/NotFound/NotFound";
 import axios from "axios";
 import { Toaster } from "react-hot-toast";
@@ -71,6 +72,7 @@ const App = () => {
             <Route path="/employees" element={<EmployeeList />} />
             <Route path="/employee/:id" element={<EmployeeProfile />} />
             <Route path="/chat" element={<Chat />} />
+            <Route path="/tools" element={<ResumeToolkit />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
