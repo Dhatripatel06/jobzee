@@ -51,6 +51,9 @@ export const jobseekerDeleteApplication = catchAsyncError(
     if (!application) {
       return next(new ErrorHandler("Oops, Application not found!", 404));
     }
+    if (application.applicantID.user.toString() !== req.user._id.toString()) {
+      return next(new ErrorHandler("You are not authorized to delete this application.", 403));
+    }
     await application.deleteOne();
     res.status(200).json({
       success: true,
@@ -71,14 +74,19 @@ export const postApplication = catchAsyncError(async (req, res, next) => {
     }
   
     const { resume } = req.files;
-    const allowedFormats = ["image/png", "image/jpeg", "image/webp"];
+    const allowedFormats = ["image/png", "image/jpeg", "image/webp", "application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
     if (!allowedFormats.includes(resume.mimetype)) {
       return next(
-        new ErrorHandler("Invalid file type. Please upload your resume in a PNG, JPG, OR WEBP Format.", 400)
+        new ErrorHandler("Invalid file type. Please upload your resume in PDF, DOC, DOCX, PNG, JPG, OR WEBP Format.", 400)
       );
     }
+    
+    // Determine resource type based on file type
+    const resourceType = resume.mimetype.startsWith('image/') ? 'image' : 'raw';
+    
     const cloudinaryResponse = await cloudinary.uploader.upload(
-      resume.tempFilePath
+      resume.tempFilePath,
+      { resource_type: resourceType }
     );
   
     if (!cloudinaryResponse || cloudinaryResponse.error) {

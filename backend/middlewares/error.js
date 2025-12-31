@@ -9,7 +9,7 @@ class ErrorHandler extends Error {
     err.message = err.message || "Internal Server Error";
     err.statusCode = err.statusCode || 500;
   
-    if (err.name === "CaseError") {
+    if (err.name === "CastError") {
       const message = `Resource not found. Invalid ${err.path}`,
         err = new ErrorHandler(message, 400);
     }

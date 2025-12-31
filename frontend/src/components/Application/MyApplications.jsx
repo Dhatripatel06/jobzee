@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import ResumeModal from "./ResumeModal";
 import { motion } from "framer-motion";
-import { FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt, FaTrashAlt, FaFileAlt, FaEye } from "react-icons/fa";
+import { FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt, FaTrashAlt, FaFileAlt, FaEye, FaComments } from "react-icons/fa";
 
 const MyApplications = () => {
   const { user } = useContext(Context);
@@ -204,11 +204,29 @@ const JobSeekerCard = ({ element, deleteApplication, openModal, index }) => {
           onClick={() => openModal(element.resume.url)}
           className="relative group cursor-pointer rounded-lg overflow-hidden border-2 border-gray-200 hover:border-[#2d5649] transition-all duration-300"
         >
-          <img
-            src={element.resume.url}
-            alt="resume"
-            className="w-full h-48 object-cover transform group-hover:scale-105 transition-transform duration-300"
-          />
+          {element.resume.url.includes('.pdf') ? (
+            <div className="w-full h-48 bg-gradient-to-br from-red-50 to-red-100 flex items-center justify-center">
+              <div className="text-center">
+                <FaFileAlt className="text-red-500 text-5xl mx-auto mb-2" />
+                <p className="text-gray-700 font-semibold">PDF Resume</p>
+                <p className="text-xs text-gray-500">Click to view</p>
+              </div>
+            </div>
+          ) : element.resume.url.includes('.doc') ? (
+            <div className="w-full h-48 bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
+              <div className="text-center">
+                <FaFileAlt className="text-blue-500 text-5xl mx-auto mb-2" />
+                <p className="text-gray-700 font-semibold">Word Document</p>
+                <p className="text-xs text-gray-500">Click to view</p>
+              </div>
+            </div>
+          ) : (
+            <img
+              src={element.resume.url}
+              alt="resume"
+              className="w-full h-48 object-cover transform group-hover:scale-105 transition-transform duration-300"
+            />
+          )}
           <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
             <div className="bg-white rounded-full p-3 opacity-0 group-hover:opacity-100 transform scale-50 group-hover:scale-100 transition-all duration-300">
               <FaEye className="text-[#2d5649] text-2xl" />
@@ -235,6 +253,13 @@ const JobSeekerCard = ({ element, deleteApplication, openModal, index }) => {
 };
 
 const EmployerCard = ({ element, openModal, index }) => {
+  const navigate = useNavigate();
+
+  const handleMessageCandidate = () => {
+    // Navigate to chat with the applicant's user ID
+    navigate(`/chat?userId=${element.applicantID.user}`);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -292,16 +317,34 @@ const EmployerCard = ({ element, openModal, index }) => {
       </div>
 
       {/* Resume Preview */}
-      <div className="px-6 pb-6">
+      <div className="px-6 pb-4">
         <div 
           onClick={() => openModal(element.resume.url)}
           className="relative group cursor-pointer rounded-lg overflow-hidden border-2 border-gray-200 hover:border-[#2d5649] transition-all duration-300"
         >
-          <img
-            src={element.resume.url}
-            alt="resume"
-            className="w-full h-48 object-cover transform group-hover:scale-105 transition-transform duration-300"
-          />
+          {element.resume.url.includes('.pdf') ? (
+            <div className="w-full h-48 bg-gradient-to-br from-red-50 to-red-100 flex items-center justify-center">
+              <div className="text-center">
+                <FaFileAlt className="text-red-500 text-5xl mx-auto mb-2" />
+                <p className="text-gray-700 font-semibold">PDF Resume</p>
+                <p className="text-xs text-gray-500">Click to view</p>
+              </div>
+            </div>
+          ) : element.resume.url.includes('.doc') ? (
+            <div className="w-full h-48 bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
+              <div className="text-center">
+                <FaFileAlt className="text-blue-500 text-5xl mx-auto mb-2" />
+                <p className="text-gray-700 font-semibold">Word Document</p>
+                <p className="text-xs text-gray-500">Click to view</p>
+              </div>
+            </div>
+          ) : (
+            <img
+              src={element.resume.url}
+              alt="resume"
+              className="w-full h-48 object-cover transform group-hover:scale-105 transition-transform duration-300"
+            />
+          )}
           <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
             <div className="bg-white rounded-full p-3 opacity-0 group-hover:opacity-100 transform scale-50 group-hover:scale-100 transition-all duration-300">
               <FaEye className="text-[#2d5649] text-2xl" />
@@ -309,6 +352,19 @@ const EmployerCard = ({ element, openModal, index }) => {
           </div>
         </div>
         <p className="text-xs text-gray-500 text-center mt-2">Click to view full resume</p>
+      </div>
+
+      {/* Actions */}
+      <div className="px-6 pb-6">
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={handleMessageCandidate}
+          className="w-full bg-[#2d5649] hover:bg-[#3d7359] text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
+        >
+          <FaComments />
+          Message Candidate
+        </motion.button>
       </div>
     </motion.div>
   );

@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { HiX } from "react-icons/hi";
 import { motion, AnimatePresence } from "framer-motion";
+import socketService from "../../services/socketService";
 
 const Navbar = () => {
   const [show, setShow] = useState(false);
@@ -22,6 +23,10 @@ const Navbar = () => {
       );
       toast.success(response.data.message);
       setIsAuthorized(false);
+      
+      // Disconnect socket on logout
+      socketService.disconnect();
+      
       navigateTo("/login");
     } catch (error) {
       toast.error(error.response.data.message);
@@ -59,6 +64,11 @@ const Navbar = () => {
             <NavLink to="/job/getall" onClick={() => setShow(false)}>
               All Jobs
             </NavLink>
+            {user && user.role === "Employer" && (
+              <NavLink to="/employees" onClick={() => setShow(false)}>
+                Browse Talent
+              </NavLink>
+            )}
             <NavLink to="/applications/me" onClick={() => setShow(false)}>
               {user && user.role === "Employer"
                 ? "Applications"
@@ -74,6 +84,9 @@ const Navbar = () => {
                 </NavLink>
               </>
             )}
+            <NavLink to="/chat" onClick={() => setShow(false)}>
+              Messages
+            </NavLink>
             <button
               onClick={handleLogout}
               className="ml-4 px-6 py-2.5 bg-accent-500 text-white rounded-lg font-semibold 
@@ -116,6 +129,11 @@ const Navbar = () => {
                 <MobileNavLink to="/job/getall" onClick={() => setShow(false)}>
                   All Jobs
                 </MobileNavLink>
+                {user && user.role === "Employer" && (
+                  <MobileNavLink to="/employees" onClick={() => setShow(false)}>
+                    Browse Talent
+                  </MobileNavLink>
+                )}
                 <MobileNavLink to="/applications/me" onClick={() => setShow(false)}>
                   {user && user.role === "Employer"
                     ? "Applications"
@@ -131,6 +149,9 @@ const Navbar = () => {
                     </MobileNavLink>
                   </>
                 )}
+                <MobileNavLink to="/chat" onClick={() => setShow(false)}>
+                  Messages
+                </MobileNavLink>
                 <button
                   onClick={handleLogout}
                   className="w-full mt-4 px-6 py-3 bg-accent-500 text-white rounded-lg font-semibold 

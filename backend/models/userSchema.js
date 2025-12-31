@@ -31,6 +31,55 @@ const userSchema = new mongoose.Schema({
     required: [true, "Please provide your role"],
     enum: ["Job Seeker", "Employer"],
   },
+  // Profile fields for employee profiles
+  profilePhoto: {
+    public_id: {
+      type: String,
+    },
+    url: {
+      type: String,
+    },
+  },
+  bio: {
+    type: String,
+    maxLength: [500, "Bio cannot exceed 500 characters"],
+    default: "",
+  },
+  skills: {
+    type: [String],
+    default: [],
+  },
+  experience: {
+    type: String,
+    default: "",
+  },
+  // Privacy settings
+  showEmail: {
+    type: Boolean,
+    default: false,
+  },
+  showPhone: {
+    type: Boolean,
+    default: false,
+  },
+  // Online status for real-time chat
+  isOnline: {
+    type: Boolean,
+    default: false,
+  },
+  lastSeen: {
+    type: Date,
+    default: Date.now,
+  },
+  // For OTP verification
+  phoneVerified: {
+    type: Boolean,
+    default: false,
+  },
+  emailVerified: {
+    type: Boolean,
+    default: false,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

@@ -3,6 +3,7 @@ import { dbConnection } from "./database/dbConnection.js";
 import jobRouter from "./routes/jobRouter.js";
 import userRouter from "./routes/userRouter.js";
 import applicationRouter from "./routes/applicationRouter.js";
+import messageRouter from "./routes/messageRouter.js";
 import { config } from "dotenv";
 import cors from "cors";
 import { errorMiddleware } from "./middlewares/error.js";
@@ -35,6 +36,7 @@ app.use(
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/application", applicationRouter);
 app.use("/api/v1/job", jobRouter);
+app.use("/api/v1/message", messageRouter);
 dbConnection();
 
 app.use(errorMiddleware);

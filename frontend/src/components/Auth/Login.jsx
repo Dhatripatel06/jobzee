@@ -7,11 +7,16 @@ import { FaRegUser } from "react-icons/fa";
 import { MdOutlineMailOutline } from "react-icons/md";
 import { RiLock2Fill } from "react-icons/ri";
 import { motion } from "framer-motion";
+import { sendOTPForLogin, verifyOTPAndLogin } from "../../services/api";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("");
+  const [loginMode, setLoginMode] = useState("password"); // "password" or "otp"
+  const [otp, setOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpIdentifier, setOtpIdentifier] = useState("");
 
   const { isAuthorized, setIsAuthorized } = useContext(Context);
 
@@ -35,6 +40,43 @@ const Login = () => {
       setIsAuthorized(true);
     } catch (error) {
       toast.error(error.response.data.message);
+    }
+  };
+
+  const handleSendOTP = async (e) => {
+    e.preventDefault();
+    
+    try {
+      const payload = {
+        method: "email",
+        role,
+        email,
+      };
+
+      const response = await sendOTPForLogin(payload);
+      toast.success(response.message);
+      setOtpSent(true);
+      setOtpIdentifier(response.identifier);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to send OTP");
+    }
+  };
+
+  const handleVerifyOTP = async (e) => {
+    e.preventDefault();
+    
+    try {
+      const payload = {
+        otp,
+        method: "email",
+        email,
+      };
+
+      const response = await verifyOTPAndLogin(payload);
+      toast.success(response.message);
+      setIsAuthorized(true);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Invalid OTP");
     }
   };
 
@@ -67,93 +109,224 @@ const Login = () => {
               </p>
             </div>
 
-            <form onSubmit={handleLogin} className="space-y-6">
-              {/* Role Selection */}
-              <div>
-                <label
-                  htmlFor="role"
-                  className="block text-sm font-semibold text-secondary-700 mb-2"
-                >
-                  Login As
-                </label>
-                <div className="relative">
-                  <select
-                    id="role"
-                    value={role}
-                    onChange={(e) => setRole(e.target.value)}
-                    className="input-field appearance-none pr-10"
-                    required
-                  >
-                    <option value="">Select Role</option>
-                    <option value="Employer">Employer</option>
-                    <option value="Job Seeker">Job Seeker</option>
-                  </select>
-                  <FaRegUser className="absolute right-4 top-1/2 transform -translate-y-1/2 text-secondary-400" />
-                </div>
-              </div>
-
-              {/* Email */}
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-semibold text-secondary-700 mb-2"
-                >
-                  Email Address
-                </label>
-                <div className="relative">
-                  <input
-                    id="email"
-                    type="email"
-                    placeholder="your.email@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="input-field pr-10"
-                    required
-                  />
-                  <MdOutlineMailOutline className="absolute right-4 top-1/2 transform -translate-y-1/2 text-secondary-400 text-xl" />
-                </div>
-              </div>
-
-              {/* Password */}
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-semibold text-secondary-700 mb-2"
-                >
-                  Password
-                </label>
-                <div className="relative">
-                  <input
-                    id="password"
-                    type="password"
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="input-field pr-10"
-                    required
-                  />
-                  <RiLock2Fill className="absolute right-4 top-1/2 transform -translate-y-1/2 text-secondary-400 text-xl" />
-                </div>
-              </div>
-
-              {/* Submit Button */}
-              <button type="submit" className="btn-primary w-full">
-                Sign In
+            {/* Login Mode Tabs */}
+            <div className="flex gap-2 mb-6">
+              <button
+                type="button"
+                onClick={() => {
+                  setLoginMode("password");
+                  setOtpSent(false);
+                }}
+                className={`flex-1 py-2 px-4 rounded-lg font-semibold transition-colors ${
+                  loginMode === "password"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+              >
+                Password
               </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setLoginMode("otp");
+                  setOtpSent(false);
+                }}
+                className={`flex-1 py-2 px-4 rounded-lg font-semibold transition-colors ${
+                  loginMode === "otp"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+              >
+                OTP
+              </button>
+            </div>
 
-              {/* Register Link */}
-              <div className="text-center">
-                <p className="text-secondary-600">
-                  Don't have an account?{" "}
-                  <Link
-                    to={"/register"}
-                    className="text-accent-500 font-semibold hover:text-accent-600 transition-colors duration-200"
+            {loginMode === "password" ? (
+              <form onSubmit={handleLogin} className="space-y-6">
+                {/* Role Selection */}
+                <div>
+                  <label
+                    htmlFor="role"
+                    className="block text-sm font-semibold text-secondary-700 mb-2"
                   >
-                    Register Now
+                    Login As
+                  </label>
+                  <div className="relative">
+                    <select
+                      id="role"
+                      value={role}
+                      onChange={(e) => setRole(e.target.value)}
+                      className="input-field appearance-none pr-10"
+                      required
+                    >
+                      <option value="">Select Role</option>
+                      <option value="Employer">Employer</option>
+                      <option value="Job Seeker">Job Seeker</option>
+                    </select>
+                    <FaRegUser className="absolute right-4 top-1/2 transform -translate-y-1/2 text-secondary-400" />
+                  </div>
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-semibold text-secondary-700 mb-2"
+                  >
+                    Email Address
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="email"
+                      type="email"
+                      placeholder="your.email@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="input-field pr-10"
+                      required
+                    />
+                    <MdOutlineMailOutline className="absolute right-4 top-1/2 transform -translate-y-1/2 text-secondary-400 text-xl" />
+                  </div>
+                </div>
+
+                {/* Password */}
+                <div>
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-semibold text-secondary-700 mb-2"
+                  >
+                    Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="password"
+                      type="password"
+                      placeholder="Enter your password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="input-field pr-10"
+                      required
+                    />
+                    <RiLock2Fill className="absolute right-4 top-1/2 transform -translate-y-1/2 text-secondary-400 text-xl" />
+                  </div>
+                </div>
+
+                {/* Forgot Password Link */}
+                <div className="text-right">
+                  <Link
+                    to="/forgot-password"
+                    className="text-sm text-blue-600 hover:text-blue-700 font-semibold"
+                  >
+                    Forgot Password?
                   </Link>
-                </p>
-              </div>
-            </form>
+                </div>
+
+                {/* Submit Button */}
+                <button type="submit" className="btn-primary w-full">
+                  Sign In
+                </button>
+              </form>
+            ) : (
+              <form onSubmit={otpSent ? handleVerifyOTP : handleSendOTP} className="space-y-6">
+                {/* Role Selection */}
+                <div>
+                  <label className="block text-sm font-semibold text-secondary-700 mb-2">
+                    Login As
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={role}
+                      onChange={(e) => setRole(e.target.value)}
+                      className="input-field appearance-none pr-10"
+                      required
+                      disabled={otpSent}
+                    >
+                      <option value="">Select Role</option>
+                      <option value="Employer">Employer</option>
+                      <option value="Job Seeker">Job Seeker</option>
+                    </select>
+                    <FaRegUser className="absolute right-4 top-1/2 transform -translate-y-1/2 text-secondary-400" />
+                  </div>
+                </div>
+
+                {!otpSent && (
+                  <>
+                    {/* Email Input */}
+                    <div>
+                      <label className="block text-sm font-semibold text-secondary-700 mb-2">
+                        Email Address
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="email"
+                          placeholder="your.email@example.com"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="input-field pr-10"
+                          required
+                        />
+                        <MdOutlineMailOutline className="absolute right-4 top-1/2 transform -translate-y-1/2 text-secondary-400 text-xl" />
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        OTP will be sent to this email
+                      </p>
+                    </div>
+
+                    <button type="submit" className="btn-primary w-full">
+                      Send OTP
+                    </button>
+                  </>
+                )}
+
+                {otpSent && (
+                  <>
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-sm text-green-700">
+                      OTP sent to {otpIdentifier}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-secondary-700 mb-2">
+                        Enter OTP
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Enter 6-digit OTP"
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value)}
+                        maxLength="6"
+                        className="input-field text-center text-2xl tracking-widest"
+                        required
+                      />
+                    </div>
+
+                    <button type="submit" className="btn-primary w-full">
+                      Verify & Login
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setOtpSent(false)}
+                      className="w-full text-sm text-blue-600 hover:text-blue-700 font-semibold"
+                    >
+                      Resend OTP
+                    </button>
+                  </>
+                )}
+              </form>
+            )}
+
+            {/* Register Link */}
+            <div className="text-center mt-6">
+              <p className="text-secondary-600">
+                Don't have an account?{" "}
+                <Link
+                  to={"/register"}
+                  className="text-accent-500 font-semibold hover:text-accent-600 transition-colors duration-200"
+                >
+                  Register Now
+                </Link>
+              </p>
+            </div>
           </motion.div>
 
           {/* Right side - Image */}
