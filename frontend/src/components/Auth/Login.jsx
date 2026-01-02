@@ -8,6 +8,8 @@ import { MdOutlineMailOutline } from "react-icons/md";
 import { RiLock2Fill } from "react-icons/ri";
 import { motion } from "framer-motion";
 import { sendOTPForLogin, verifyOTPAndLogin } from "../../services/api";
+import socketService from "../../services/socketService";
+import Cookies from "js-cookie";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -38,6 +40,17 @@ const Login = () => {
       setRole("");
       setPassword("");
       setIsAuthorized(true);
+      
+      // Store token in localStorage for socket connection
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        console.log("Token stored in localStorage");
+        
+        // Initialize socket connection after successful login
+        setTimeout(() => {
+          socketService.connect(data.token);
+        }, 100);
+      }
     } catch (error) {
       toast.error(error.response.data.message);
     }
@@ -75,6 +88,17 @@ const Login = () => {
       const response = await verifyOTPAndLogin(payload);
       toast.success(response.message);
       setIsAuthorized(true);
+      
+      // Store token in localStorage for socket connection
+      if (response.token) {
+        localStorage.setItem("token", response.token);
+        console.log("Token stored in localStorage");
+        
+        // Initialize socket connection after successful login
+        setTimeout(() => {
+          socketService.connect(response.token);
+        }, 100);
+      }
     } catch (error) {
       toast.error(error.response?.data?.message || "Invalid OTP");
     }

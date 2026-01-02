@@ -27,7 +27,10 @@ const ConversationList = ({ onSelectConversation, selectedConversationId }) => {
       const data = await getConversations();
       setConversations(data.conversations);
     } catch (error) {
-      toast.error("Failed to fetch conversations");
+      console.error("Failed to fetch conversations:", error);
+      if (error.response?.status !== 401) {
+        toast.error("Failed to fetch conversations");
+      }
     } finally {
       setLoading(false);
     }

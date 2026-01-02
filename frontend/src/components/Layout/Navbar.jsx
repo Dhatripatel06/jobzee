@@ -24,6 +24,9 @@ const Navbar = () => {
       toast.success(response.data.message);
       setIsAuthorized(false);
       
+      // Clear token from localStorage
+      localStorage.removeItem("token");
+      
       // Disconnect socket on logout
       socketService.disconnect();
       

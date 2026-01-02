@@ -103,13 +103,13 @@ const EmployeeList = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {emdiv
+                {employees.map((employee) => (
+                  <div
                     key={employee._id}
                     className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden"
                   >
                     <Link to={`/employee/${employee._id}`} className="block">
-                    >
-                    <div className="p-6">
+                      <div className="p-6">
                       {/* Profile Photo */}
                       <div className="flex justify-center mb-4">
                         {employee.profilePhoto?.url ? (

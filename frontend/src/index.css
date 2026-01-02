@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -13,47 +13,121 @@
     @apply m-0 p-0 font-sans overflow-x-hidden;
   }
   
+  /* Modern Scrollbar for Chat and Lists */
   ::-webkit-scrollbar {
-    @apply w-2;
+    @apply w-[6px];
   }
   
   ::-webkit-scrollbar-track {
-    @apply bg-gray-100;
+    @apply bg-transparent;
   }
   
   ::-webkit-scrollbar-thumb {
-    @apply bg-accent-500 rounded-full;
+    background: rgba(45, 86, 73, 0.3);
+    @apply rounded-[10px];
   }
   
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-accent-600;
+    @apply bg-primary;
   }
 }
 
 @layer components {
+  /* Professional Glassmorphism System */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
+    @apply rounded-2xl transition-all duration-300;
+  }
+
+  .glass-card:hover {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(45, 86, 73, 0.2);
+    @apply transform -translate-y-1 shadow-glass-hover;
+  }
+
+  .glass-card-dark {
+    background: rgba(45, 86, 73, 0.1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(45, 86, 73, 0.2);
+    @apply rounded-2xl transition-all duration-300;
+  }
+
+  .glass-card-solid {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    @apply rounded-2xl shadow-glass-lg;
+  }
+
+  .glass-input {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    @apply rounded-xl px-4 py-3 transition-all duration-200;
+  }
+
+  .glass-input:focus {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(45, 86, 73, 0.3);
+    @apply outline-none ring-2 ring-primary ring-opacity-20;
+  }
+
+  .glass-button {
+    background: rgba(45, 86, 73, 0.9);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    @apply text-white rounded-xl px-6 py-3 font-semibold transition-all duration-200;
+    @apply hover:bg-primary hover:shadow-glass-hover active:scale-95;
+  }
+
+  .glass-button-outline {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 2px solid rgba(45, 86, 73, 0.3);
+    @apply text-primary rounded-xl px-6 py-3 font-semibold transition-all duration-200;
+    @apply hover:bg-primary hover:text-white hover:border-primary active:scale-95;
+  }
+
+  /* Modern Badge */
+  .glass-badge {
+    background: rgba(45, 86, 73, 0.1);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(45, 86, 73, 0.2);
+    @apply rounded-full px-3 py-1 text-xs font-medium text-primary;
+  }
+
   /* Custom component styles */
   .btn-primary {
-    @apply px-6 py-3 bg-accent-500 text-white rounded-lg font-semibold 
-           hover:bg-accent-600 transition-all duration-300 
-           focus:outline-none focus:ring-2 focus:ring-accent-500 focus:ring-offset-2
-           active:scale-95 shadow-md hover:shadow-lg;
+    @apply px-6 py-3 bg-primary text-white rounded-xl font-semibold 
+           hover:bg-primary-hover transition-all duration-300 
+           focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
+           active:scale-95 shadow-glass hover:shadow-glass-lg;
   }
   
   .btn-secondary {
-    @apply px-6 py-3 bg-white text-accent-500 border-2 border-accent-500 rounded-lg font-semibold 
-           hover:bg-accent-500 hover:text-white transition-all duration-300 
-           focus:outline-none focus:ring-2 focus:ring-accent-500 focus:ring-offset-2
+    @apply px-6 py-3 bg-white text-primary border-2 border-primary rounded-xl font-semibold 
+           hover:bg-primary hover:text-white transition-all duration-300 
+           focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
            active:scale-95;
   }
   
   .input-field {
-    @apply w-full px-4 py-3 border border-gray-300 rounded-lg 
-           focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent
-           transition-all duration-200 bg-gray-50 hover:bg-white;
+    @apply w-full px-4 py-3 border border-gray-200 rounded-xl 
+           focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent
+           transition-all duration-200 bg-white hover:border-gray-300 shadow-sm;
   }
   
   .card {
-    @apply bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300
+    @apply bg-white rounded-2xl shadow-glass hover:shadow-glass-lg transition-all duration-300
            transform hover:-translate-y-1 border border-gray-100;
   }
   

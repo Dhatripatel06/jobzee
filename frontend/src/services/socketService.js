@@ -9,10 +9,18 @@ class SocketService {
   // Initialize socket connection
   connect(token) {
     if (this.socket?.connected) {
+      console.log("Socket already connected");
       return this.socket;
     }
 
+    // Disconnect any existing socket first
+    if (this.socket) {
+      this.socket.disconnect();
+    }
+
     const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "http://localhost:4000";
+
+    console.log("Connecting to socket with token:", token ? "present" : "missing");
 
     this.socket = io(SOCKET_URL, {
       auth: {
@@ -26,15 +34,24 @@ class SocketService {
 
     // Setup default listeners
     this.socket.on("connect", () => {
-      console.log("Socket connected:", this.socket.id);
+      console.log("✅ Socket connected:", this.socket.id);
     });
 
     this.socket.on("disconnect", (reason) => {
-      console.log("Socket disconnected:", reason);
+      console.log("❌ Socket disconnected:", reason);
+      if (reason === "io server disconnect") {
+        // Server disconnected, try to reconnect
+        console.log("Attempting to reconnect...");
+        this.socket.connect();
+      }
     });
 
     this.socket.on("connect_error", (error) => {
-      console.error("Socket connection error:", error.message);
+      console.error("❌ Socket connection error:", error.message);
+    });
+
+    this.socket.on("error", (error) => {
+      console.error("❌ Socket error:", error);
     });
 
     return this.socket;
@@ -51,15 +68,19 @@ class SocketService {
 
   // Check if connected
   isConnected() {
-    return this.socket?.connected || false;
+    const connected = this.socket?.connected || false;
+    console.log("Socket connection status:", connected, "Socket exists:", !!this.socket);
+    return connected;
   }
 
   // Emit event
   emit(event, data) {
     if (this.socket?.connected) {
       this.socket.emit(event, data);
+      console.log(`📤 Emitted ${event}:`, data);
     } else {
-      console.warn("Socket not connected. Cannot emit:", event);
+      console.warn("⚠️ Socket not connected. Cannot emit:", event);
+      console.log("Socket status:", this.socket ? "exists but not connected" : "not initialized");
     }
   }
 

@@ -15,6 +15,14 @@ const Chat = () => {
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [isMobileView, setIsMobileView] = useState(window.innerWidth < 768);
   const [loadingConversation, setLoadingConversation] = useState(false);
+  const [socketConnected, setSocketConnected] = useState(false);
+
+  // Redirect to login if not authorized
+  useEffect(() => {
+    if (!isAuthorized) {
+      navigate("/login");
+    }
+  }, [isAuthorized, navigate]);
 
   useEffect(() => {
     // Handle window resize
@@ -29,9 +37,19 @@ const Chat = () => {
   useEffect(() => {
     // Initialize socket connection when user is authorized
     if (isAuthorized && user) {
-      const token = Cookies.get("token");
+      const token = localStorage.getItem("token");
+      console.log("Chat: Checking socket connection. Token:", token ? "exists" : "missing", "Connected:", socketService.isConnected());
+      
       if (token && !socketService.isConnected()) {
+        console.log("Chat: Initializing socket connection...");
         socketService.connect(token);
+        
+        // Wait a bit and check connection status
+        setTimeout(() => {
+          setSocketConnected(socketService.isConnected());
+        }, 1000);
+      } else {
+        setSocketConnected(socketService.isConnected());
       }
       
       // Listen for new messages in real-time
@@ -67,8 +85,8 @@ const Chat = () => {
       );
 
       // Find existing conversation with this user
-      const existingConversation = conversationsData.conversations.find(
-        (conv) => conv.participants.some((p) => p._id === userId)
+      const existingConversation = conversationsData.conversations?.find(
+        (conv) => conv.participants?.some((p) => p._id === userId)
       );
 
       if (existingConversation) {
@@ -109,6 +127,27 @@ const Chat = () => {
     setSelectedConversation(null);
   };
 
+  const handleReconnect = () => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      console.log("Manual reconnect triggered");
+      socketService.disconnect();
+      setTimeout(() => {
+        socketService.connect(token);
+        setTimeout(() => {
+          setSocketConnected(socketService.isConnected());
+          if (socketService.isConnected()) {
+            toast.success("Socket reconnected!");
+          } else {
+            toast.error("Failed to reconnect socket");
+          }
+        }, 1000);
+      }, 100);
+    } else {
+      toast.error("No authentication token found");
+    }
+  };
+
   // Show loading state
   if (loadingConversation) {
     return (
@@ -125,6 +164,18 @@ const Chat = () => {
   if (isMobileView) {
     return (
       <div className="h-screen flex flex-col">
+        {/* Socket Status Banner */}
+        {!socketConnected && (
+          <div className="bg-yellow-100 border-b border-yellow-200 px-4 py-2 flex items-center justify-between">
+            <span className="text-yellow-800 text-sm">⚠️ Real-time messaging disconnected</span>
+            <button
+              onClick={handleReconnect}
+              className="text-xs bg-yellow-600 text-white px-3 py-1 rounded hover:bg-yellow-700"
+            >
+              Reconnect
+            </button>
+          </div>
+        )}
         {selectedConversation ? (
           <MessageBox conversation={selectedConversation} onBack={handleBack} />
         ) : (
@@ -139,15 +190,29 @@ const Chat = () => {
 
   // Desktop view: show both list and messages side by side
   return (
-    <div className="h-screen flex">
-      <div className="w-1/3 border-r">
-        <ConversationList
-          onSelectConversation={handleSelectConversation}
-          selectedConversationId={selectedConversation?._id}
-        />
-      </div>
-      <div className="flex-1">
-        <MessageBox conversation={selectedConversation} onBack={handleBack} />
+    <div className="h-screen flex flex-col">
+      {/* Socket Status Banner */}
+      {!socketConnected && (
+        <div className="bg-yellow-100 border-b border-yellow-200 px-4 py-2 flex items-center justify-between">
+          <span className="text-yellow-800 text-sm">⚠️ Real-time messaging disconnected. Click reconnect or refresh the page.</span>
+          <button
+            onClick={handleReconnect}
+            className="text-xs bg-yellow-600 text-white px-3 py-1 rounded hover:bg-yellow-700"
+          >
+            Reconnect
+          </button>
+        </div>
+      )}
+      <div className="flex flex-1">
+        <div className="w-1/3 border-r">
+          <ConversationList
+            onSelectConversation={handleSelectConversation}
+            selectedConversationId={selectedConversation?._id}
+          />
+        </div>
+        <div className="flex-1">
+          <MessageBox conversation={selectedConversation} onBack={handleBack} />
+        </div>
       </div>
     </div>
   );

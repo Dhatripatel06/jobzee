@@ -35,23 +35,31 @@ const App = () => {
             withCredentials: true,
           }
         );
-        console.log(response);
+        console.log("User fetched:", response.data);
         setUser(response.data.user);
         setIsAuthorized(true);
         
         // Initialize socket connection after user is fetched
-        const token = Cookies.get("token");
+        const token = localStorage.getItem("token");
+        console.log("Token from localStorage:", token ? "present" : "missing");
         if (token && !socketService.isConnected()) {
-          socketService.connect(token);
+          console.log("Connecting socket from App.jsx");
+          setTimeout(() => {
+            socketService.connect(token);
+          }, 100);
         }
       } catch (error) {
+        console.log("User not authenticated:", error.response?.status);
         setIsAuthorized(false);
+        setUser(null);
+        // Clear token from localStorage
+        localStorage.removeItem("token");
         // Disconnect socket if not authorized
         socketService.disconnect();
       }
     };
     fetchUser();
-  }, [isAuthorized]);
+  }, []); // Only run once on mount
 
   return (
     <Router>

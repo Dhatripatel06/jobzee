@@ -17,52 +17,78 @@ const MyApplications = () => {
   const navigateTo = useNavigate();
 
   useEffect(() => {
-    try {
-      if (user && user.role === "Employer") {
-        axios
-          .get("http://localhost:4000/api/v1/application/employer/getall", {
-            withCredentials: true,
-          })
-          .then((res) => {
-            setApplications(res.data.applications);
-          });
-      } else {
-        axios
-          .get("http://localhost:4000/api/v1/application/jobseeker/getall", {
-            withCredentials: true,
-          })
-          .then((res) => {
-            setApplications(res.data.applications);
-          });
-      }
-    } catch (error) {
-      toast.error(error.response.data.message);
+    // Handle unauthorized access
+    if (!isAuthorized) {
+      navigateTo("/");
+      return;
     }
-  }, [isAuthorized]);
 
-  if (!isAuthorized) {
-    navigateTo("/");
-  }
+    const fetchApplications = async () => {
+      // Only fetch if user is loaded
+      if (!user) {
+        return;
+      }
 
-  const deleteApplication = (id) => {
-    try {
-      axios
-        .delete(`http://localhost:4000/api/v1/application/delete/${id}`, {
+      try {
+        const endpoint = user.role === "Employer"
+          ? "http://localhost:4000/api/v1/application/employer/getall"
+          : "http://localhost:4000/api/v1/application/jobseeker/getall";
+
+        const res = await axios.get(endpoint, {
           withCredentials: true,
-        })
-        .then((res) => {
-          toast.success(res.data.message);
-          setApplications((prevApplication) =>
-            prevApplication.filter((application) => application._id !== id)
-          );
         });
+        
+        setApplications(res.data.applications);
+      } catch (error) {
+        console.error("Error fetching applications:", error);
+        // Only show error toast if it's not a 400 (which might mean no applications)
+        if (error.response?.status !== 400) {
+          toast.error(error.response?.data?.message || "Failed to fetch applications");
+        }
+      }
+    };
+
+    fetchApplications();
+  }, [user, isAuthorized, navigateTo]);
+
+  const deleteApplication = async (id) => {
+    try {
+      const res = await axios.delete(
+        `http://localhost:4000/api/v1/application/delete/${id}`,
+        {
+          withCredentials: true,
+        }
+      );
+      toast.success(res.data.message);
+      setApplications((prevApplication) =>
+        prevApplication.filter((application) => application._id !== id)
+      );
     } catch (error) {
-      toast.error(error.response.data.message);
+      console.error("Error deleting application:", error);
+      toast.error(error.response?.data?.message || "Failed to delete application");
     }
   };
 
-  const openModal = (imageUrl) => {
-    setResumeImageUrl(imageUrl);
+  const openModal = (imageUrl, applicationId = null) => {
+    console.log('openModal called with:', { imageUrl, applicationId });
+    
+    // Check if it's a PDF or document (raw file from Cloudinary)
+    const isPDFOrDoc = imageUrl && (
+      imageUrl.includes('.pdf') || 
+      imageUrl.includes('.doc') || 
+      imageUrl.includes('/raw/upload/') ||
+      imageUrl.includes('application/pdf')
+    );
+    
+    // If it's a PDF/document and we have an application ID, use the proxy URL
+    if (applicationId && isPDFOrDoc) {
+      const proxyUrl = `http://localhost:4000/api/v1/application/resume/${applicationId}`;
+      console.log('Using proxy URL:', proxyUrl);
+      setResumeImageUrl(proxyUrl);
+    } else {
+      console.log('Using direct URL:', imageUrl);
+      setResumeImageUrl(imageUrl);
+    }
     setModalOpen(true);
   };
 
@@ -201,7 +227,7 @@ const JobSeekerCard = ({ element, deleteApplication, openModal, index }) => {
       {/* Resume Preview */}
       <div className="px-6 pb-4">
         <div 
-          onClick={() => openModal(element.resume.url)}
+          onClick={() => openModal(element.resume.url, element._id)}
           className="relative group cursor-pointer rounded-lg overflow-hidden border-2 border-gray-200 hover:border-[#2d5649] transition-all duration-300"
         >
           {element.resume.url.includes('.pdf') ? (
@@ -319,7 +345,7 @@ const EmployerCard = ({ element, openModal, index }) => {
       {/* Resume Preview */}
       <div className="px-6 pb-4">
         <div 
-          onClick={() => openModal(element.resume.url)}
+          onClick={() => openModal(element.resume.url, element._id)}
           className="relative group cursor-pointer rounded-lg overflow-hidden border-2 border-gray-200 hover:border-[#2d5649] transition-all duration-300"
         >
           {element.resume.url.includes('.pdf') ? (

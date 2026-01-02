@@ -4,6 +4,51 @@ import { Application } from "../models/applicationSchema.js";
 import { Job } from "../models/jobSchema.js";
 import cloudinary from "cloudinary";
 
+// Helper function to generate authenticated URL for Cloudinary resources
+const getAuthenticatedUrl = (publicId, resourceType = 'raw') => {
+  try {
+    // For raw files (PDFs, docs), use private_cdn with signed URLs
+    const timestamp = Math.floor(Date.now() / 1000);
+    const signedUrl = cloudinary.v2.utils.private_download_url(publicId, null, {
+      resource_type: resourceType,
+      expires_at: timestamp + 3600, // 1 hour expiry
+    });
+    return signedUrl;
+  } catch (error) {
+    console.error('Error generating authenticated URL:', error);
+    // Fallback: try regular signed URL
+    try {
+      return cloudinary.v2.url(publicId, {
+        resource_type: resourceType,
+        type: 'upload',
+        sign_url: true,
+        secure: true,
+      });
+    } catch (fallbackError) {
+      console.error('Fallback URL generation also failed:', fallbackError);
+      return null;
+    }
+  }
+};
+
+// Helper function to process applications and add proxy URLs
+const processApplications = (applications) => {
+  return applications.map(app => {
+    const appObj = app.toObject();
+    if (appObj.resume && appObj.resume.url) {
+      // Determine if it's a raw file (PDF/DOC)
+      const resourceType = appObj.resume.url.includes('/raw/upload/');
+      
+      // For raw files (PDFs/Docs), use backend proxy URL
+      if (resourceType) {
+        appObj.resume.proxyUrl = `http://localhost:4000/api/v1/application/resume/${appObj._id}`;
+        appObj.resume.originalUrl = appObj.resume.url; // Keep original for fallback
+      }
+    }
+    return appObj;
+  });
+};
+
 export const employerGetAllApplications = catchAsyncError(
   async (req, res, next) => {
     const { role } = req.user;
@@ -14,9 +59,13 @@ export const employerGetAllApplications = catchAsyncError(
     }
     const { _id } = req.user;
     const applications = await Application.find({ "employerID.user": _id });
+    
+    // Process applications to add signed URLs for PDFs
+    const processedApplications = processApplications(applications);
+    
     res.status(200).json({
       success: true,
-      applications,
+      applications: processedApplications,
     });
   }
 );
@@ -31,9 +80,13 @@ export const jobseekerGetAllApplications = catchAsyncError(
     }
     const { _id } = req.user;
     const applications = await Application.find({ "applicantID.user": _id });
+    
+    // Process applications to add signed URLs for PDFs
+    const processedApplications = processApplications(applications);
+    
     res.status(200).json({
       success: true,
-      applications,
+      applications: processedApplications,
     });
   }
 );
@@ -62,6 +115,51 @@ export const jobseekerDeleteApplication = catchAsyncError(
   }
 );
 
+// Proxy endpoint to serve resume files with authentication
+export const getResume = catchAsyncError(async (req, res, next) => {
+  const { id } = req.params;
+  const application = await Application.findById(id);
+  
+  if (!application) {
+    return next(new ErrorHandler("Application not found!", 404));
+  }
+  
+  // Check authorization
+  const isApplicant = application.applicantID.user.toString() === req.user._id.toString();
+  const isEmployer = application.employerID.user.toString() === req.user._id.toString();
+  
+  if (!isApplicant && !isEmployer) {
+    return next(new ErrorHandler("You are not authorized to view this resume.", 403));
+  }
+  
+  // For images, redirect directly
+  if (!application.resume.url.includes('/raw/upload/')) {
+    return res.redirect(application.resume.url);
+  }
+  
+  // For PDFs/documents, fetch and stream the content
+  try {
+    const fetch = (await import('node-fetch')).default;
+    const response = await fetch(application.resume.url);
+    
+    if (!response.ok) {
+      return next(new ErrorHandler("Failed to fetch resume from storage.", 500));
+    }
+    
+    // Set appropriate headers
+    const contentType = response.headers.get('content-type') || 'application/pdf';
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Content-Disposition', 'inline');
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    
+    // Stream the PDF content
+    response.body.pipe(res);
+  } catch (error) {
+    console.error('Error proxying resume:', error);
+    return next(new ErrorHandler("Failed to load resume.", 500));
+  }
+});
+
 export const postApplication = catchAsyncError(async (req, res, next) => {
     const { role } = req.user;
     if (role === "Employer") {
@@ -86,7 +184,12 @@ export const postApplication = catchAsyncError(async (req, res, next) => {
     
     const cloudinaryResponse = await cloudinary.uploader.upload(
       resume.tempFilePath,
-      { resource_type: resourceType }
+      { 
+        resource_type: resourceType,
+        type: 'upload',
+        // Make files publicly accessible
+        invalidate: true
+      }
     );
   
     if (!cloudinaryResponse || cloudinaryResponse.error) {

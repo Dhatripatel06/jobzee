@@ -15,10 +15,14 @@ const MessageBox = ({ conversation, onBack }) => {
   const messagesEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
 
+  console.log("MessageBox - Conversation:", conversation);
+
   // Get the other participant in the conversation
   const otherParticipant = conversation?.participants?.find(
     (participant) => participant._id !== user?._id
-  ) || conversation?.participants?.[0];
+  ) || conversation?.participants?.[0] || conversation?.participant;
+
+  console.log("MessageBox - Other participant:", otherParticipant);
 
   useEffect(() => {
     if (conversation) {
@@ -64,19 +68,47 @@ const MessageBox = ({ conversation, onBack }) => {
   const setupSocketListeners = () => {
     if (!otherParticipant) return;
 
+    // Listen for messages FROM the other participant
     socketService.on("newMessage", (message) => {
+      console.log("📨 Received newMessage:", message);
       const conversationId = conversation.isNew ? `new_${otherParticipant._id}` : conversation._id;
-      if (message.conversationId === conversationId || message.sender._id === otherParticipant._id) {
-        setMessages((prev) => [...prev, message]);
+      
+      // Check if this message belongs to this conversation
+      const isForThisConversation = 
+        message.conversationId === conversationId || 
+        message.conversationId === conversation._id ||
+        (message.sender && message.sender._id === otherParticipant._id) ||
+        (message.sender === otherParticipant._id);
+      
+      if (isForThisConversation) {
+        console.log("✅ Adding message to conversation");
+        setMessages((prev) => {
+          // Check if message already exists
+          const exists = prev.some((m) => m._id === message._id);
+          if (exists) return prev;
+          return [...prev, message];
+        });
+        
         if (!conversation.isNew) {
           markConversationAsRead();
         }
       }
     });
 
+    // Listen for messages sent BY the current user
     socketService.on("messageSent", (message) => {
+      console.log("📤 Received messageSent:", message);
       const conversationId = conversation.isNew ? `new_${otherParticipant._id}` : conversation._id;
-      if (message.conversationId === conversationId || message.receiver._id === otherParticipant._id) {
+      
+      // Check if this message belongs to this conversation
+      const isForThisConversation = 
+        message.conversationId === conversationId || 
+        message.conversationId === conversation._id ||
+        (message.receiver && message.receiver._id === otherParticipant._id) ||
+        (message.receiver === otherParticipant._id);
+      
+      if (isForThisConversation) {
+        console.log("✅ Adding sent message to conversation");
         setMessages((prev) => {
           // Check if message already exists
           const exists = prev.some((m) => m._id === message._id);

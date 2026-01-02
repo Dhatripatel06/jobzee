@@ -20,8 +20,26 @@ app.use(
     method: ["GET", "POST", "DELETE", "PUT"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
+    exposedHeaders: ["Content-Disposition", "Content-Type"],
   })
 );
+
+// Add headers for CORS and PDF viewing
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", req.headers.origin || "*");
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.header("Access-Control-Expose-Headers", "Content-Disposition, Content-Type");
+  
+  // Allow embedding in iframes (if serving files directly)
+  res.removeHeader("X-Frame-Options");
+  
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
+  next();
+});
 
 app.use(cookieParser());
 app.use(express.json());
