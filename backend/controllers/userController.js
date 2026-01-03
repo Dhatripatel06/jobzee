@@ -185,7 +185,19 @@ export const getEmployeeProfile = catchAsyncError(async (req, res, next) => {
 
 // Update employee profile (extended)
 export const updateEmployeeProfile = catchAsyncError(async (req, res, next) => {
-  const { name, bio, skills, experience, showEmail, showPhone } = req.body;
+  const { 
+    name, 
+    bio, 
+    skills, 
+    experience, 
+    education,
+    headline,
+    companyWebsite,
+    industry,
+    companySize,
+    showEmail, 
+    showPhone 
+  } = req.body;
   
   const user = await User.findById(req.user._id);
   
@@ -195,8 +207,26 @@ export const updateEmployeeProfile = catchAsyncError(async (req, res, next) => {
   
   if (name) user.name = name;
   if (bio !== undefined) user.bio = bio;
+  if (headline !== undefined) user.headline = headline;
   if (skills) user.skills = Array.isArray(skills) ? skills : skills.split(",").map(s => s.trim());
-  if (experience !== undefined) user.experience = experience;
+  
+  // Handle experience - parse if it's a JSON string
+  if (experience !== undefined) {
+    user.experience = typeof experience === 'string' ? JSON.parse(experience) : experience;
+  }
+  
+  // Handle education - parse if it's a JSON string
+  if (education !== undefined) {
+    user.education = typeof education === 'string' ? JSON.parse(education) : education;
+  }
+  
+  // Employer-specific fields
+  if (user.role === "Employer") {
+    if (companyWebsite !== undefined) user.companyWebsite = companyWebsite;
+    if (industry !== undefined) user.industry = industry;
+    if (companySize !== undefined) user.companySize = companySize;
+  }
+  
   if (showEmail !== undefined) user.showEmail = showEmail;
   if (showPhone !== undefined) user.showPhone = showPhone;
   

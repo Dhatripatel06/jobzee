@@ -95,6 +95,15 @@ const Navbar = () => {
             <NavLink to="/chat" onClick={() => setShow(false)}>
               Messages
             </NavLink>
+            <NavLink 
+              to={user && user.role === "Job Seeker" 
+                ? `/employee/${user._id}` 
+                : `/employer/${user._id}`
+              } 
+              onClick={() => setShow(false)}
+            >
+              My Profile
+            </NavLink>
             <button
               onClick={handleLogout}
               className="ml-4 px-6 py-2.5 bg-accent-500 text-white rounded-lg font-semibold 
@@ -164,6 +173,15 @@ const Navbar = () => {
                 )}
                 <MobileNavLink to="/chat" onClick={() => setShow(false)}>
                   Messages
+                </MobileNavLink>
+                <MobileNavLink 
+                  to={user && user.role === "Job Seeker" 
+                    ? `/employee/${user._id}` 
+                    : `/employer/${user._id}`
+                  } 
+                  onClick={() => setShow(false)}
+                >
+                  My Profile
                 </MobileNavLink>
                 <button
                   onClick={handleLogout}

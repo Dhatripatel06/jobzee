@@ -8,7 +8,8 @@ import {
   FaEnvelope, 
   FaPhone, 
   FaArrowLeft, 
-  FaComments, 
+  FaComments,
+  FaEdit,
   FaGlobe,
   FaUsers,
   FaIndustry,
@@ -74,6 +75,11 @@ const EmployerProfile = () => {
   };
 
   const handleStartChat = () => {
+    // Check if user is trying to message themselves
+    if (user && user._id === id) {
+      toast.error("You cannot message yourself");
+      return;
+    }
     navigate(`/chat?userId=${id}`);
   };
 
@@ -172,7 +178,17 @@ const EmployerProfile = () => {
 
               {/* Action Button */}
               <div className="flex flex-col gap-2 pt-4 sm:pt-16">
-                {!isOwnProfile && (
+                {isOwnProfile ? (
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => navigate("/employee/profile/edit")}
+                    className="flex items-center justify-center gap-2 px-6 py-2.5 border-2 border-[#2d5649] text-[#2d5649] font-semibold rounded-full hover:bg-[#2d5649] hover:text-white transition-all"
+                  >
+                    <FaEdit />
+                    Edit Profile
+                  </motion.button>
+                ) : user ? (
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
@@ -182,7 +198,7 @@ const EmployerProfile = () => {
                     <FaComments />
                     Contact Company
                   </motion.button>
-                )}
+                ) : null}
               </div>
             </div>
           </div>

@@ -21,6 +21,9 @@ const EditProfile = ({ onClose, onUpdate }) => {
     headline: user?.headline || "",
     bio: user?.bio || "",
     skills: user?.skills?.join(", ") || "",
+    companyWebsite: user?.companyWebsite || "",
+    industry: user?.industry || "",
+    companySize: user?.companySize || "",
     showEmail: user?.showEmail || false,
     showPhone: user?.showPhone || false,
   });
@@ -146,6 +149,14 @@ const EditProfile = ({ onClose, onUpdate }) => {
       submitData.append("headline", formData.headline);
       submitData.append("bio", formData.bio);
       submitData.append("skills", formData.skills);
+      
+      // Employer-specific fields
+      if (user?.role === "Employer") {
+        submitData.append("companyWebsite", formData.companyWebsite);
+        submitData.append("industry", formData.industry);
+        submitData.append("companySize", formData.companySize);
+      }
+      
       submitData.append("showEmail", formData.showEmail);
       submitData.append("showPhone", formData.showPhone);
       
@@ -285,25 +296,85 @@ const EditProfile = ({ onClose, onUpdate }) => {
             </p>
           </div>
 
-          {/* Skills */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Skills
-            </label>
-            <input
-              type="text"
-              name="skills"
-              value={formData.skills}
-              onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5649] focus:border-transparent"
-              placeholder="JavaScript, React, Node.js, MongoDB (comma-separated)"
-            />
-            <p className="text-sm text-gray-500 mt-1">
-              Enter skills separated by commas
-            </p>
-          </div>
+          {/* Employer-Specific Fields */}
+          {user?.role === "Employer" && (
+            <div className="space-y-4 border-t pt-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Company Information</h3>
+              
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Company Website
+                </label>
+                <input
+                  type="url"
+                  name="companyWebsite"
+                  value={formData.companyWebsite}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5649] focus:border-transparent"
+                  placeholder="https://www.yourcompany.com"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Industry
+                </label>
+                <input
+                  type="text"
+                  name="industry"
+                  value={formData.industry}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5649] focus:border-transparent"
+                  placeholder="e.g., Technology, Finance, Healthcare"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Company Size
+                </label>
+                <select
+                  name="companySize"
+                  value={formData.companySize}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5649] focus:border-transparent"
+                >
+                  <option value="">Select company size</option>
+                  <option value="1-10 employees">1-10 employees</option>
+                  <option value="11-50 employees">11-50 employees</option>
+                  <option value="51-200 employees">51-200 employees</option>
+                  <option value="201-500 employees">201-500 employees</option>
+                  <option value="501-1000 employees">501-1000 employees</option>
+                  <option value="1001-5000 employees">1001-5000 employees</option>
+                  <option value="5001-10000 employees">5001-10000 employees</option>
+                  <option value="10000+ employees">10000+ employees</option>
+                </select>
+              </div>
+            </div>
+          )}
 
-          {/* Experience Section */}
+          {/* Skills */}
+          {user?.role === "Job Seeker" && (
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Skills
+              </label>
+              <input
+                type="text"
+                name="skills"
+                value={formData.skills}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5649] focus:border-transparent"
+                placeholder="JavaScript, React, Node.js, MongoDB (comma-separated)"
+              />
+              <p className="text-sm text-gray-500 mt-1">
+                Enter skills separated by commas
+              </p>
+            </div>
+          )}
+
+          {/* Experience Section - Job Seekers Only */}
+          {user?.role === "Job Seeker" && (
           <div className="border-t pt-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
@@ -429,8 +500,10 @@ const EditProfile = ({ onClose, onUpdate }) => {
               ))}
             </div>
           </div>
+          )}
 
-          {/* Education Section */}
+          {/* Education Section - Job Seekers Only */}
+          {user?.role === "Job Seeker" && (
           <div className="border-t pt-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
@@ -569,6 +642,7 @@ const EditProfile = ({ onClose, onUpdate }) => {
               ))}
             </div>
           </div>
+          )}
 
           {/* Privacy Settings */}
           <div className="border-t pt-6">

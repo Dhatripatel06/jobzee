@@ -15,6 +15,8 @@ import Application from "./components/Application/Application";
 import MyApplications from "./components/Application/MyApplications";
 import EmployeeList from "./components/Employee/EmployeeList";
 import EmployeeProfile from "./components/Employee/EmployeeProfile";
+import EmployerProfile from "./components/Employee/EmployerProfile";
+import EditProfilePage from "./components/Employee/EditProfilePage";
 import Chat from "./components/Chat/Chat";
 import ResumeToolkit from "./components/Tools/ResumeToolkit";
 import NotFound from "./components/NotFound/NotFound";
@@ -79,6 +81,8 @@ const App = () => {
             <Route path="/applications/me" element={<MyApplications />} />
             <Route path="/employees" element={<EmployeeList />} />
             <Route path="/employee/:id" element={<EmployeeProfile />} />
+            <Route path="/employer/:id" element={<EmployerProfile />} />
+            <Route path="/employee/profile/edit" element={<EditProfilePage />} />
             <Route path="/chat" element={<Chat />} />
             <Route path="/tools" element={<ResumeToolkit />} />
             <Route path="*" element={<NotFound />} />

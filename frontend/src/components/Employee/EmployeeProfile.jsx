@@ -97,34 +97,35 @@ const EmployeeProfile = () => {
           animate={{ opacity: 1, y: 0 }}
           className="bg-white rounded-lg shadow overflow-hidden mb-4"
         >
-          {/* Cover Image */}
-          <div className="h-48 bg-gradient-to-r from-[#2d5649] via-[#3d7359] to-[#4d8569] relative">
-            <div className="absolute inset-0 bg-black opacity-10"></div>
+          {/* Cover Image - Larger Banner */}
+          <div className="h-56 bg-gradient-to-br from-[#2d5649] via-[#3d7359] to-[#1e3d33] relative overflow-hidden">
+            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1200')] bg-cover bg-center opacity-20"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
           </div>
 
           {/* Profile Header */}
           <div className="px-6 pb-6">
-            <div className="flex flex-col sm:flex-row gap-4 -mt-16 relative">
-              {/* Profile Photo */}
+            <div className="flex flex-col sm:flex-row gap-4 -mt-20 relative">
+              {/* Profile Photo - Larger with better overlap */}
               <div className="flex-shrink-0">
                 {employee.profilePhoto?.url ? (
                   <img
                     src={employee.profilePhoto.url}
                     alt={employee.name}
-                    className="w-36 h-36 rounded-full object-cover border-4 border-white shadow-xl bg-white"
+                    className="w-40 h-40 rounded-full object-cover border-4 border-white shadow-2xl bg-white ring-2 ring-gray-100"
                   />
                 ) : (
-                  <div className="w-36 h-36 rounded-full border-4 border-white shadow-xl bg-gray-200 flex items-center justify-center">
-                    <FaUserCircle className="w-32 h-32 text-gray-400" />
+                  <div className="w-40 h-40 rounded-full border-4 border-white shadow-2xl bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center ring-2 ring-gray-100">
+                    <FaUserCircle className="w-36 h-36 text-gray-400" />
                   </div>
                 )}
               </div>
 
-              {/* Name and Headline */}
-              <div className="flex-1 pt-4 sm:pt-16">
-                <h1 className="text-3xl font-bold text-gray-900">{employee.name}</h1>
+              {/* Name and Headline - More prominent */}
+              <div className="flex-1 pt-4 sm:pt-20">
+                <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">{employee.name}</h1>
                 {employee.headline && (
-                  <p className="text-lg text-gray-700 mt-1">{employee.headline}</p>
+                  <p className="text-xl text-gray-700 mt-2 font-medium leading-relaxed">{employee.headline}</p>
                 )}
                 <div className="flex items-center gap-4 mt-3 text-gray-600 text-sm">
                   <div className="flex items-center gap-2">
@@ -143,7 +144,7 @@ const EmployeeProfile = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col gap-2 pt-4 sm:pt-16">
+              <div className="flex flex-col gap-2 pt-4 sm:pt-20">
                 {isOwnProfile ? (
                   <motion.button
                     whileHover={{ scale: 1.02 }}
@@ -198,13 +199,13 @@ const EmployeeProfile = () => {
                   <FaBriefcase className="text-[#2d5649]" />
                   Experience
                 </h2>
-                <div className="space-y-6">
+                <div className="space-y-8">
                   {employee.experience.map((exp, index) => (
-                    <div key={index} className="relative pl-8 pb-6 border-l-2 border-gray-200 last:border-0 last:pb-0">
-                      <div className="absolute left-0 -ml-2 w-4 h-4 rounded-full bg-[#2d5649] border-2 border-white"></div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900">{exp.role}</h3>
-                        <p className="text-base text-gray-700 font-medium">{exp.company}</p>
+                    <div key={index} className="relative pl-10 pb-8 border-l-[3px] border-gray-200 last:border-0 last:pb-0 group hover:border-[#2d5649] transition-colors">
+                      <div className="absolute left-0 -ml-2.5 w-5 h-5 rounded-full bg-[#2d5649] border-4 border-white shadow-md group-hover:scale-110 transition-transform"></div>
+                      <div className="bg-gray-50 rounded-lg p-4 group-hover:bg-[#f0f7f4] transition-colors">
+                        <h3 className="text-xl font-bold text-gray-900">{exp.role}</h3>
+                        <p className="text-lg text-gray-800 font-semibold mt-1">{exp.company}</p>
                         {exp.location && (
                           <p className="text-sm text-gray-600 flex items-center gap-1 mt-1">
                             <FaMapMarkerAlt className="text-xs" />
@@ -217,7 +218,7 @@ const EmployeeProfile = () => {
                           {exp.current ? 'Present' : exp.endDate ? new Date(exp.endDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'End'}
                         </p>
                         {exp.description && (
-                          <p className="text-gray-700 mt-3 text-sm leading-relaxed">{exp.description}</p>
+                          <p className="text-gray-700 mt-3 text-sm leading-relaxed whitespace-pre-line">{exp.description}</p>
                         )}
                       </div>
                     </div>
@@ -238,13 +239,13 @@ const EmployeeProfile = () => {
                   <FaGraduationCap className="text-[#2d5649]" />
                   Education
                 </h2>
-                <div className="space-y-6">
+                <div className="space-y-8">
                   {employee.education.map((edu, index) => (
-                    <div key={index} className="relative pl-8 pb-6 border-l-2 border-gray-200 last:border-0 last:pb-0">
-                      <div className="absolute left-0 -ml-2 w-4 h-4 rounded-full bg-[#2d5649] border-2 border-white"></div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900">{edu.school}</h3>
-                        <p className="text-base text-gray-700">{edu.degree}{edu.fieldOfStudy ? `, ${edu.fieldOfStudy}` : ''}</p>
+                    <div key={index} className="relative pl-10 pb-8 border-l-[3px] border-gray-200 last:border-0 last:pb-0 group hover:border-[#2d5649] transition-colors">
+                      <div className="absolute left-0 -ml-2.5 w-5 h-5 rounded-full bg-[#2d5649] border-4 border-white shadow-md group-hover:scale-110 transition-transform"></div>
+                      <div className="bg-gray-50 rounded-lg p-4 group-hover:bg-[#f0f7f4] transition-colors">
+                        <h3 className="text-xl font-bold text-gray-900">{edu.school}</h3>
+                        <p className="text-lg text-gray-800 font-semibold mt-1">{edu.degree}{edu.fieldOfStudy ? `, ${edu.fieldOfStudy}` : ''}</p>
                         <p className="text-sm text-gray-600 flex items-center gap-1 mt-1">
                           <FaCalendarAlt className="text-xs" />
                           {edu.startDate ? new Date(edu.startDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'Start'} - {' '}
@@ -254,7 +255,7 @@ const EmployeeProfile = () => {
                           <p className="text-sm text-gray-600 mt-1">Grade: {edu.grade}</p>
                         )}
                         {edu.description && (
-                          <p className="text-gray-700 mt-3 text-sm leading-relaxed">{edu.description}</p>
+                          <p className="text-gray-700 mt-3 text-sm leading-relaxed whitespace-pre-line">{edu.description}</p>
                         )}
                       </div>
                     </div>
@@ -275,14 +276,15 @@ const EmployeeProfile = () => {
                 className="bg-white rounded-lg shadow p-6"
               >
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">Skills</h2>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2.5">
                   {employee.skills.map((skill, index) => (
                     <motion.span
                       key={index}
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ delay: 0.1 + index * 0.05 }}
-                      className="px-3 py-1.5 bg-gray-100 text-gray-800 rounded-full text-sm font-medium hover:bg-[#2d5649] hover:text-white transition-colors cursor-default"
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ delay: 0.1 + index * 0.05, type: "spring", stiffness: 200 }}
+                      whileHover={{ scale: 1.05, y: -2 }}
+                      className="px-4 py-2 bg-gradient-to-r from-gray-100 to-gray-50 text-gray-800 rounded-full text-sm font-semibold hover:from-[#2d5649] hover:to-[#3d7359] hover:text-white shadow-sm hover:shadow-md transition-all cursor-default border border-gray-200 hover:border-transparent"
                     >
                       {skill}
                     </motion.span>
