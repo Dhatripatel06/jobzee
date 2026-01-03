@@ -13,6 +13,10 @@ import {
   verifyOTPAndLogin,
   forgotPassword,
   verifyOTPAndResetPassword,
+  addConnection,
+  removeConnection,
+  getConnections,
+  getConnectionStatus,
 } from "../controllers/userController.js";
 
 const router = express.Router();
@@ -28,6 +32,12 @@ router.put("/update", isAuthorized, updateProfile);
 router.get("/employees", isAuthorized, getAllEmployees);
 router.get("/employee/:id", isAuthorized, getEmployeeProfile);
 router.put("/employee/profile", isAuthorized, updateEmployeeProfile);
+
+// Connection system routes
+router.post("/connect/:id", isAuthorized, addConnection);
+router.delete("/connect/:id", isAuthorized, removeConnection);
+router.get("/connections", isAuthorized, getConnections);
+router.get("/connection-status/:id", isAuthorized, getConnectionStatus);
 
 // OTP-based login routes
 router.post("/otp/send", sendOTPForLogin);

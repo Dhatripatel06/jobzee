@@ -32,6 +32,18 @@ export const updateEmployeeProfile = async (formData) => {
   return response.data;
 };
 
+// ==================== EMPLOYER PROFILE APIs ====================
+
+export const getEmployerProfile = async (id) => {
+  const response = await api.get(`/user/employee/${id}`); // Using same endpoint as it returns any user
+  return response.data;
+};
+
+export const getEmployerJobs = async (employerId) => {
+  const response = await api.get(`/job/getall?postedBy=${employerId}`);
+  return response.data;
+};
+
 // ==================== MESSAGING APIs ====================
 
 export const sendMessage = async (data) => {
@@ -82,6 +94,28 @@ export const forgotPassword = async (data) => {
 
 export const resetPassword = async (data) => {
   const response = await api.post("/user/password/reset", data);
+  return response.data;
+};
+
+// ==================== CONNECTION SYSTEM APIs ====================
+
+export const addConnection = async (userId) => {
+  const response = await api.post(`/user/connect/${userId}`);
+  return response.data;
+};
+
+export const removeConnection = async (userId) => {
+  const response = await api.delete(`/user/connect/${userId}`);
+  return response.data;
+};
+
+export const getConnections = async () => {
+  const response = await api.get("/user/connections");
+  return response.data;
+};
+
+export const getConnectionStatus = async (userId) => {
+  const response = await api.get(`/user/connection-status/${userId}`);
   return response.data;
 };
 

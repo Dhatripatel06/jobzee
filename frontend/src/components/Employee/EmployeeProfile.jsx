@@ -1,14 +1,31 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getEmployeeProfile } from "../../services/api";
-import { FaUserCircle, FaEnvelope, FaPhone, FaArrowLeft, FaComments } from "react-icons/fa";
+import { Context } from "../../main";
+import { 
+  FaUserCircle, 
+  FaEnvelope, 
+  FaPhone, 
+  FaArrowLeft, 
+  FaComments, 
+  FaEdit,
+  FaBriefcase,
+  FaGraduationCap,
+  FaMapMarkerAlt,
+  FaCalendarAlt,
+  FaLinkedin
+} from "react-icons/fa";
 import toast from "react-hot-toast";
+import { motion } from "framer-motion";
 
 const EmployeeProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useContext(Context);
   const [employee, setEmployee] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const isOwnProfile = user && employee && user._id === employee._id;
 
   useEffect(() => {
     fetchEmployeeProfile();
@@ -59,151 +76,302 @@ const EmployeeProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        {/* Back Button */}
-        <button
-          onClick={() => navigate("/employees")}
-          className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6 transition-colors"
-        >
-          <FaArrowLeft />
-          <span>Back to Employees</span>
-        </button>
+    <div className="min-h-screen bg-gray-50">
+      {/* Back Button */}
+      <div className="bg-white border-b">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <button
+            onClick={() => navigate("/employees")}
+            className="flex items-center gap-2 text-gray-600 hover:text-[#2d5649] transition-colors"
+          >
+            <FaArrowLeft />
+            <span>Back to Employees</span>
+          </button>
+        </div>
+      </div>
 
-        {/* Profile Card */}
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-          {/* Header Section */}
-          <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-8 py-12 text-white">
-            <div className="flex flex-col md:flex-row items-center gap-6">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* LinkedIn-Style Header Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-lg shadow overflow-hidden mb-4"
+        >
+          {/* Cover Image */}
+          <div className="h-48 bg-gradient-to-r from-[#2d5649] via-[#3d7359] to-[#4d8569] relative">
+            <div className="absolute inset-0 bg-black opacity-10"></div>
+          </div>
+
+          {/* Profile Header */}
+          <div className="px-6 pb-6">
+            <div className="flex flex-col sm:flex-row gap-4 -mt-16 relative">
               {/* Profile Photo */}
               <div className="flex-shrink-0">
                 {employee.profilePhoto?.url ? (
                   <img
                     src={employee.profilePhoto.url}
                     alt={employee.name}
-                    className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
+                    className="w-36 h-36 rounded-full object-cover border-4 border-white shadow-xl bg-white"
                   />
                 ) : (
-                  <FaUserCircle className="w-32 h-32 text-white opacity-80" />
+                  <div className="w-36 h-36 rounded-full border-4 border-white shadow-xl bg-gray-200 flex items-center justify-center">
+                    <FaUserCircle className="w-32 h-32 text-gray-400" />
+                  </div>
                 )}
               </div>
 
-              {/* Basic Info */}
-              <div className="flex-1 text-center md:text-left">
-                <h1 className="text-3xl md:text-4xl font-bold mb-2">{employee.name}</h1>
-                <div className="flex items-center justify-center md:justify-start gap-2 mb-4">
-                  <span
-                    className={`w-3 h-3 rounded-full ${
-                      employee.isOnline ? "bg-green-400" : "bg-gray-400"
-                    }`}
-                  ></span>
-                  <span className="text-blue-100">
-                    {employee.isOnline
-                      ? "Online"
-                      : `Last seen ${new Date(employee.lastSeen).toLocaleDateString()}`}
-                  </span>
+              {/* Name and Headline */}
+              <div className="flex-1 pt-4 sm:pt-16">
+                <h1 className="text-3xl font-bold text-gray-900">{employee.name}</h1>
+                {employee.headline && (
+                  <p className="text-lg text-gray-700 mt-1">{employee.headline}</p>
+                )}
+                <div className="flex items-center gap-4 mt-3 text-gray-600 text-sm">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`w-2.5 h-2.5 rounded-full ${
+                        employee.isOnline ? "bg-green-500" : "bg-gray-400"
+                      }`}
+                    ></span>
+                    <span>
+                      {employee.isOnline
+                        ? "Online"
+                        : `Last seen ${new Date(employee.lastSeen).toLocaleDateString()}`}
+                    </span>
+                  </div>
                 </div>
-                <button
-                  onClick={handleStartChat}
-                  className="flex items-center gap-2 px-6 py-3 bg-white text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition-colors mx-auto md:mx-0"
-                >
-                  <FaComments />
-                  Start Conversation
-                </button>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col gap-2 pt-4 sm:pt-16">
+                {isOwnProfile ? (
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => navigate("/employee/profile/edit")}
+                    className="flex items-center justify-center gap-2 px-6 py-2.5 border-2 border-[#2d5649] text-[#2d5649] font-semibold rounded-full hover:bg-[#2d5649] hover:text-white transition-all"
+                  >
+                    <FaEdit />
+                    Edit Profile
+                  </motion.button>
+                ) : (
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleStartChat}
+                    className="flex items-center justify-center gap-2 px-6 py-2.5 bg-[#2d5649] text-white font-semibold rounded-full hover:bg-[#3d7359] transition-colors"
+                  >
+                    <FaComments />
+                    Message
+                  </motion.button>
+                )}
               </div>
             </div>
           </div>
+        </motion.div>
 
-          {/* Content Section */}
-          <div className="px-8 py-8">
-            {/* Bio */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          {/* Main Content */}
+          <div className="lg:col-span-2 space-y-4">
+            {/* About Section */}
             {employee.bio && (
-              <div className="mb-8">
-                <h2 className="text-2xl font-semibold text-gray-900 mb-3">About</h2>
-                <p className="text-gray-700 leading-relaxed">{employee.bio}</p>
-              </div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="bg-white rounded-lg shadow p-6"
+              >
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">About</h2>
+                <p className="text-gray-700 leading-relaxed whitespace-pre-line">{employee.bio}</p>
+              </motion.div>
             )}
 
-            {/* Skills */}
-            {employee.skills && employee.skills.length > 0 && (
-              <div className="mb-8">
-                <h2 className="text-2xl font-semibold text-gray-900 mb-3">Skills</h2>
-                <div className="flex flex-wrap gap-3">
-                  {employee.skills.map((skill, index) => (
-                    <span
-                      key={index}
-                      className="px-4 py-2 bg-blue-100 text-blue-700 rounded-full font-medium"
-                    >
-                      {skill}
-                    </span>
+            {/* Experience Timeline */}
+            {employee.experience && employee.experience.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="bg-white rounded-lg shadow p-6"
+              >
+                <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                  <FaBriefcase className="text-[#2d5649]" />
+                  Experience
+                </h2>
+                <div className="space-y-6">
+                  {employee.experience.map((exp, index) => (
+                    <div key={index} className="relative pl-8 pb-6 border-l-2 border-gray-200 last:border-0 last:pb-0">
+                      <div className="absolute left-0 -ml-2 w-4 h-4 rounded-full bg-[#2d5649] border-2 border-white"></div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900">{exp.role}</h3>
+                        <p className="text-base text-gray-700 font-medium">{exp.company}</p>
+                        {exp.location && (
+                          <p className="text-sm text-gray-600 flex items-center gap-1 mt-1">
+                            <FaMapMarkerAlt className="text-xs" />
+                            {exp.location}
+                          </p>
+                        )}
+                        <p className="text-sm text-gray-600 flex items-center gap-1 mt-1">
+                          <FaCalendarAlt className="text-xs" />
+                          {exp.startDate ? new Date(exp.startDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'Start'} - {' '}
+                          {exp.current ? 'Present' : exp.endDate ? new Date(exp.endDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'End'}
+                        </p>
+                        {exp.description && (
+                          <p className="text-gray-700 mt-3 text-sm leading-relaxed">{exp.description}</p>
+                        )}
+                      </div>
+                    </div>
                   ))}
                 </div>
-              </div>
+              </motion.div>
             )}
 
-            {/* Experience */}
-            {employee.experience && (
-              <div className="mb-8">
-                <h2 className="text-2xl font-semibold text-gray-900 mb-3">Experience</h2>
-                <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                  {employee.experience}
-                </p>
-              </div>
+            {/* Education Section */}
+            {employee.education && employee.education.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="bg-white rounded-lg shadow p-6"
+              >
+                <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                  <FaGraduationCap className="text-[#2d5649]" />
+                  Education
+                </h2>
+                <div className="space-y-6">
+                  {employee.education.map((edu, index) => (
+                    <div key={index} className="relative pl-8 pb-6 border-l-2 border-gray-200 last:border-0 last:pb-0">
+                      <div className="absolute left-0 -ml-2 w-4 h-4 rounded-full bg-[#2d5649] border-2 border-white"></div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900">{edu.school}</h3>
+                        <p className="text-base text-gray-700">{edu.degree}{edu.fieldOfStudy ? `, ${edu.fieldOfStudy}` : ''}</p>
+                        <p className="text-sm text-gray-600 flex items-center gap-1 mt-1">
+                          <FaCalendarAlt className="text-xs" />
+                          {edu.startDate ? new Date(edu.startDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'Start'} - {' '}
+                          {edu.current ? 'Present' : edu.endDate ? new Date(edu.endDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'End'}
+                        </p>
+                        {edu.grade && (
+                          <p className="text-sm text-gray-600 mt-1">Grade: {edu.grade}</p>
+                        )}
+                        {edu.description && (
+                          <p className="text-gray-700 mt-3 text-sm leading-relaxed">{edu.description}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-4">
+            {/* Skills Cloud */}
+            {employee.skills && employee.skills.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="bg-white rounded-lg shadow p-6"
+              >
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">Skills</h2>
+                <div className="flex flex-wrap gap-2">
+                  {employee.skills.map((skill, index) => (
+                    <motion.span
+                      key={index}
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.1 + index * 0.05 }}
+                      className="px-3 py-1.5 bg-gray-100 text-gray-800 rounded-full text-sm font-medium hover:bg-[#2d5649] hover:text-white transition-colors cursor-default"
+                    >
+                      {skill}
+                    </motion.span>
+                  ))}
+                </div>
+              </motion.div>
             )}
 
             {/* Contact Information */}
-            <div className="border-t pt-6">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">Contact Information</h2>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="bg-white rounded-lg shadow p-6"
+            >
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Contact Info</h2>
               <div className="space-y-3">
-                {employee.email ? (
+                {employee.showEmail && employee.email ? (
                   <div className="flex items-center gap-3 text-gray-700">
-                    <FaEnvelope className="text-blue-600" />
+                    <FaEnvelope className="text-[#2d5649] flex-shrink-0" />
                     <a
                       href={`mailto:${employee.email}`}
-                      className="hover:text-blue-600 transition-colors"
+                      className="hover:text-[#2d5649] transition-colors text-sm break-all"
                     >
                       {employee.email}
                     </a>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-3 text-gray-500">
-                    <FaEnvelope />
-                    <span>Email not shared</span>
+                  <div className="flex items-center gap-3 text-gray-400">
+                    <FaEnvelope className="flex-shrink-0" />
+                    <span className="text-sm">Email not shared</span>
                   </div>
                 )}
 
-                {employee.phone ? (
+                {employee.showPhone && employee.phone ? (
                   <div className="flex items-center gap-3 text-gray-700">
-                    <FaPhone className="text-blue-600" />
+                    <FaPhone className="text-[#2d5649] flex-shrink-0" />
                     <a
                       href={`tel:${employee.phone}`}
-                      className="hover:text-blue-600 transition-colors"
+                      className="hover:text-[#2d5649] transition-colors text-sm"
                     >
                       {employee.phone}
                     </a>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-3 text-gray-500">
-                    <FaPhone />
-                    <span>Phone not shared</span>
+                  <div className="flex items-center gap-3 text-gray-400">
+                    <FaPhone className="flex-shrink-0" />
+                    <span className="text-sm">Phone not shared</span>
                   </div>
                 )}
               </div>
-              <p className="text-sm text-gray-500 mt-4">
-                * Contact details are shown based on user's privacy settings
+              <p className="text-xs text-gray-500 mt-4 italic">
+                Contact visibility based on user's privacy settings
               </p>
-            </div>
+            </motion.div>
+
+            {/* Connections (if available) */}
+            {employee.connections && employee.connections.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="bg-white rounded-lg shadow p-6"
+              >
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">Connections</h2>
+                <p className="text-2xl font-bold text-[#2d5649]">
+                  {employee.connections.length}
+                </p>
+                <p className="text-sm text-gray-600 mt-1">professional connections</p>
+              </motion.div>
+            )}
 
             {/* Member Since */}
-            <div className="mt-6 pt-6 border-t">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="bg-white rounded-lg shadow p-6"
+            >
               <p className="text-sm text-gray-600">
-                Member since {new Date(employee.createdAt).toLocaleDateString("en-US", {
+                <span className="font-semibold">Member since:</span>
+                <br />
+                {new Date(employee.createdAt).toLocaleDateString("en-US", {
                   year: "numeric",
                   month: "long",
                   day: "numeric",
                 })}
               </p>
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>

@@ -127,16 +127,29 @@ export const getAllEmployees = catchAsyncError(async (req, res, next) => {
   }
   
   const employees = await User.find(query)
-    .select("name email phone profilePhoto bio skills experience role isOnline lastSeen showEmail showPhone")
+    .select("name email phone profilePhoto bio skills experience role isOnline lastSeen showEmail showPhone headline education")
     .skip((page - 1) * limit)
     .limit(parseInt(limit))
     .sort({ createdAt: -1 });
   
   const total = await User.countDocuments(query);
   
+  // Add connection status if user is authenticated
+  let employeesWithStatus = employees;
+  if (req.user) {
+    const currentUser = await User.findById(req.user._id).select("connections");
+    employeesWithStatus = employees.map(emp => {
+      const empObj = emp.toObject();
+      empObj.isConnected = currentUser.connections.some(
+        connId => connId.toString() === emp._id.toString()
+      );
+      return empObj;
+    });
+  }
+  
   res.status(200).json({
     success: true,
-    employees,
+    employees: employeesWithStatus,
     pagination: {
       currentPage: parseInt(page),
       totalPages: Math.ceil(total / limit),
@@ -442,5 +455,125 @@ export const verifyOTPAndResetPassword = catchAsyncError(async (req, res, next) 
   res.status(200).json({
     success: true,
     message: "Password reset successfully! Please login with your new password.",
+  });
+});
+
+// ==================== CONNECTION SYSTEM ENDPOINTS ====================
+
+// Add a connection
+export const addConnection = catchAsyncError(async (req, res, next) => {
+  const { id } = req.params; // User to connect with
+  const currentUserId = req.user._id;
+  
+  // Check if trying to connect with self
+  if (id === currentUserId.toString()) {
+    return next(new ErrorHandler("You cannot connect with yourself", 400));
+  }
+  
+  // Find both users
+  const currentUser = await User.findById(currentUserId);
+  const targetUser = await User.findById(id);
+  
+  if (!targetUser) {
+    return next(new ErrorHandler("User not found", 404));
+  }
+  
+  // Check if already connected
+  if (currentUser.connections.includes(id)) {
+    return next(new ErrorHandler("Already connected with this user", 400));
+  }
+  
+  // Add to current user's connections
+  currentUser.connections.push(id);
+  await currentUser.save();
+  
+  // Add reciprocal connection (both users are connected)
+  if (!targetUser.connections.includes(currentUserId)) {
+    targetUser.connections.push(currentUserId);
+    await targetUser.save();
+  }
+  
+  res.status(200).json({
+    success: true,
+    message: `Successfully connected with ${targetUser.name}`,
+    connections: currentUser.connections,
+  });
+});
+
+// Remove a connection
+export const removeConnection = catchAsyncError(async (req, res, next) => {
+  const { id } = req.params;
+  const currentUserId = req.user._id;
+  
+  const currentUser = await User.findById(currentUserId);
+  const targetUser = await User.findById(id);
+  
+  if (!targetUser) {
+    return next(new ErrorHandler("User not found", 404));
+  }
+  
+  // Remove from current user's connections
+  currentUser.connections = currentUser.connections.filter(
+    connId => connId.toString() !== id
+  );
+  await currentUser.save();
+  
+  // Remove reciprocal connection
+  targetUser.connections = targetUser.connections.filter(
+    connId => connId.toString() !== currentUserId.toString()
+  );
+  await targetUser.save();
+  
+  res.status(200).json({
+    success: true,
+    message: `Connection removed with ${targetUser.name}`,
+    connections: currentUser.connections,
+  });
+});
+
+// Get all connections with full profiles
+export const getConnections = catchAsyncError(async (req, res, next) => {
+  const currentUser = await User.findById(req.user._id).populate({
+    path: "connections",
+    select: "name email phone profilePhoto bio skills headline role isOnline lastSeen showEmail showPhone createdAt experience education",
+  });
+  
+  if (!currentUser) {
+    return next(new ErrorHandler("User not found", 404));
+  }
+  
+  // Filter connections and respect privacy settings
+  const connectionsWithPrivacy = currentUser.connections.map(conn => {
+    const connObj = conn.toObject();
+    
+    if (!connObj.showEmail) {
+      delete connObj.email;
+    }
+    if (!connObj.showPhone) {
+      delete connObj.phone;
+    }
+    
+    return connObj;
+  });
+  
+  res.status(200).json({
+    success: true,
+    connections: connectionsWithPrivacy,
+    total: connectionsWithPrivacy.length,
+  });
+});
+
+// Get connection status with a specific user
+export const getConnectionStatus = catchAsyncError(async (req, res, next) => {
+  const { id } = req.params;
+  const currentUserId = req.user._id;
+  
+  const currentUser = await User.findById(currentUserId);
+  
+  const isConnected = currentUser.connections.includes(id);
+  
+  res.status(200).json({
+    success: true,
+    isConnected,
   });
 });
