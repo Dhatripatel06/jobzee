@@ -33,17 +33,28 @@ const getAuthenticatedUrl = (publicId, resourceType = 'raw') => {
 
 // Helper function to process applications and add proxy URLs
 const processApplications = (applications) => {
+  console.log('processApplications called with', applications.length, 'applications');
   return applications.map(app => {
     const appObj = app.toObject();
     if (appObj.resume && appObj.resume.url) {
-      // Determine if it's a raw file (PDF/DOC)
-      const resourceType = appObj.resume.url.includes('/raw/upload/');
+      const url = appObj.resume.url.toLowerCase();
+      console.log('Processing resume URL:', appObj.resume.url);
+      // Check if it's a PDF or document
+      const isPDFOrDoc = url.includes('.pdf') || url.includes('.doc') || 
+                         url.includes('.docx') || url.includes('/raw/upload/');
       
-      // For raw files (PDFs/Docs), use backend proxy URL
-      if (resourceType) {
+      console.log('isPDFOrDoc:', isPDFOrDoc, 'for URL:', url);
+      
+      // For all PDFs/Docs, use backend proxy URL
+      if (isPDFOrDoc) {
         appObj.resume.proxyUrl = `http://localhost:4000/api/v1/application/resume/${appObj._id}`;
         appObj.resume.originalUrl = appObj.resume.url; // Keep original for fallback
+        console.log('Added proxyUrl:', appObj.resume.proxyUrl);
+      } else {
+        console.log('No proxyUrl added - not a PDF/doc');
       }
+    } else {
+      console.log('No resume URL found for application:', appObj._id);
     }
     return appObj;
   });
@@ -117,18 +128,30 @@ export const jobseekerDeleteApplication = catchAsyncError(
 
 // Proxy endpoint to serve resume files with authentication
 export const getResume = catchAsyncError(async (req, res, next) => {
+  console.log('getResume called with params:', req.params);
+  console.log('getResume query:', req.query);
+  console.log('getResume cookies:', req.cookies);
+  console.log('getResume user:', req.user ? 'authenticated' : 'not authenticated');
+  
   const { id } = req.params;
   const application = await Application.findById(id);
   
   if (!application) {
+    console.log('Application not found for id:', id);
     return next(new ErrorHandler("Application not found!", 404));
   }
+  
+  console.log('Application found:', application._id);
+  console.log('Resume URL:', application.resume.url);
   
   // Check authorization
   const isApplicant = application.applicantID.user.toString() === req.user._id.toString();
   const isEmployer = application.employerID.user.toString() === req.user._id.toString();
   
+  console.log('Authorization check - isApplicant:', isApplicant, 'isEmployer:', isEmployer);
+  
   if (!isApplicant && !isEmployer) {
+    console.log('User not authorized to view this resume');
     return next(new ErrorHandler("You are not authorized to view this resume.", 403));
   }
   

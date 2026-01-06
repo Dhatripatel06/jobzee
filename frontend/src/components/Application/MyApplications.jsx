@@ -69,26 +69,58 @@ const MyApplications = () => {
     }
   };
 
-  const openModal = (imageUrl, applicationId = null) => {
-    console.log('openModal called with:', { imageUrl, applicationId });
-    
-    // Check if it's a PDF or document (raw file from Cloudinary)
-    const isPDFOrDoc = imageUrl && (
-      imageUrl.includes('.pdf') || 
-      imageUrl.includes('.doc') || 
-      imageUrl.includes('/raw/upload/') ||
-      imageUrl.includes('application/pdf')
-    );
-    
-    // If it's a PDF/document and we have an application ID, use the proxy URL
-    if (applicationId && isPDFOrDoc) {
-      const proxyUrl = `http://localhost:4000/api/v1/application/resume/${applicationId}`;
-      console.log('Using proxy URL:', proxyUrl);
-      setResumeImageUrl(proxyUrl);
-    } else {
-      console.log('Using direct URL:', imageUrl);
-      setResumeImageUrl(imageUrl);
+  const openModal = (resumeData, applicationId = null) => {
+    console.log('openModal called with:', { resumeData, applicationId });
+    console.log('resumeData type:', typeof resumeData);
+    if (typeof resumeData === 'object') {
+      console.log('resumeData object:', resumeData);
     }
+    
+    // If resumeData is an object with proxyUrl, use it
+    let urlToUse;
+    if (typeof resumeData === 'object' && resumeData.proxyUrl) {
+      urlToUse = resumeData.proxyUrl;
+      console.log('Using proxyUrl from backend:', urlToUse);
+    } else if (typeof resumeData === 'object' && resumeData.url) {
+      // If it's a resume object without proxyUrl, construct it
+      const imageUrl = resumeData.url;
+      console.log('Resume object URL:', imageUrl);
+      const isPDFOrDoc = imageUrl && (
+        imageUrl.toLowerCase().includes('.pdf') || 
+        imageUrl.toLowerCase().includes('.doc') || 
+        imageUrl.toLowerCase().includes('.docx') ||
+        imageUrl.includes('/raw/upload/')
+      );
+      
+      if (applicationId && isPDFOrDoc) {
+        urlToUse = `http://localhost:4000/api/v1/application/resume/${applicationId}`;
+        console.log('Constructed proxy URL:', urlToUse);
+      } else {
+        urlToUse = imageUrl;
+        console.log('Using direct URL from object:', urlToUse);
+      }
+    } else {
+      // String URL passed directly
+      const imageUrl = resumeData;
+      console.log('String URL passed:', imageUrl);
+      const isPDFOrDoc = imageUrl && (
+        imageUrl.toLowerCase().includes('.pdf') || 
+        imageUrl.toLowerCase().includes('.doc') || 
+        imageUrl.toLowerCase().includes('.docx') ||
+        imageUrl.includes('/raw/upload/')
+      );
+      
+      if (applicationId && isPDFOrDoc) {
+        urlToUse = `http://localhost:4000/api/v1/application/resume/${applicationId}`;
+        console.log('Constructed proxy URL from string:', urlToUse);
+      } else {
+        urlToUse = imageUrl;
+        console.log('Using direct URL string:', urlToUse);
+      }
+    }
+    
+    console.log('Final URL to use:', urlToUse);
+    setResumeImageUrl(urlToUse);
     setModalOpen(true);
   };
 
@@ -227,7 +259,7 @@ const JobSeekerCard = ({ element, deleteApplication, openModal, index }) => {
       {/* Resume Preview */}
       <div className="px-6 pb-4">
         <div 
-          onClick={() => openModal(element.resume.url, element._id)}
+          onClick={() => openModal(element.resume, element._id)}
           className="relative group cursor-pointer rounded-lg overflow-hidden border-2 border-gray-200 hover:border-[#2d5649] transition-all duration-300"
         >
           {element.resume.url.includes('.pdf') ? (
@@ -345,7 +377,7 @@ const EmployerCard = ({ element, openModal, index }) => {
       {/* Resume Preview */}
       <div className="px-6 pb-4">
         <div 
-          onClick={() => openModal(element.resume.url, element._id)}
+          onClick={() => openModal(element.resume, element._id)}
           className="relative group cursor-pointer rounded-lg overflow-hidden border-2 border-gray-200 hover:border-[#2d5649] transition-all duration-300"
         >
           {element.resume.url.includes('.pdf') ? (

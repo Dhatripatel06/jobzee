@@ -162,11 +162,11 @@ export const getAllEmployees = catchAsyncError(async (req, res, next) => {
 export const getEmployeeProfile = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
   
-  const employee = await User.findOne({ _id: id, role: "Job Seeker" })
-    .select("name email phone profilePhoto bio skills experience role isOnline lastSeen showEmail showPhone createdAt");
+  const employee = await User.findById(id)
+    .select("name email phone profilePhoto bio skills experience education headline role isOnline lastSeen showEmail showPhone createdAt companyWebsite industry companySize");
   
   if (!employee) {
-    return next(new ErrorHandler("Employee not found", 404));
+    return next(new ErrorHandler("User not found", 404));
   }
   
   // Respect privacy settings

@@ -15,24 +15,52 @@ const ResumeModal = ({ imageUrl, onClose }) => {
   );
   const isDocument = imageUrl && (imageUrl.includes('.doc') || imageUrl.includes('.docx'));
   
-  // Use the URL as-is (it should be the proxy URL for PDFs)
+  // Add auth token to URL for iframe to work
   let pdfUrl = imageUrl;
+  if (isPDF && imageUrl.includes('/application/resume/')) {
+    const token = localStorage.getItem('token');
+    console.log('Token from localStorage:', token ? 'exists (length: ' + token.length + ')' : 'missing');
+    if (token) {
+      pdfUrl = `${imageUrl}?token=${token}`;
+      console.log('Final PDF URL with token:', pdfUrl);
+    } else {
+      console.error('No token found in localStorage!');
+    }
+  }
   console.log('PDF URL to display:', pdfUrl, 'isPDF:', isPDF);
   
   const handleDownload = () => {
     if (imageUrl) {
-      // Force download by adding fl_attachment flag for Cloudinary URLs
+      // For proxy URLs, add token for authentication
       let downloadUrl = imageUrl;
-      if (imageUrl.includes('cloudinary.com') && !imageUrl.includes('fl_attachment')) {
+      
+      if (imageUrl.includes('/application/resume/')) {
+        const token = localStorage.getItem('token');
+        if (token) {
+          downloadUrl = `${imageUrl}?token=${token}`;
+        }
+      } else if (imageUrl.includes('cloudinary.com') && !imageUrl.includes('fl_attachment')) {
+        // Force download by adding fl_attachment flag for Cloudinary URLs
         downloadUrl = imageUrl.replace('/upload/', '/upload/fl_attachment/');
       }
+      
       window.open(downloadUrl, '_blank');
     }
   };
 
   const handleOpenInNewTab = () => {
     if (imageUrl) {
-      window.open(imageUrl, '_blank');
+      let openUrl = imageUrl;
+      
+      // For proxy URLs, add token for authentication
+      if (imageUrl.includes('/application/resume/')) {
+        const token = localStorage.getItem('token');
+        if (token) {
+          openUrl = `${imageUrl}?token=${token}`;
+        }
+      }
+      
+      window.open(openUrl, '_blank');
     }
   };
 
