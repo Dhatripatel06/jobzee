@@ -30,6 +30,7 @@ export const isAuthorizedWithToken = catchAsyncError(async (req, res, next) => {
   }
   
   try {
+    console.log('isAuthorizedWithToken - JWT_SECRET_KEY exists:', process.env.JWT_SECRET_KEY ? 'yes' : 'no');
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
     console.log('isAuthorizedWithToken - token decoded successfully, user ID:', decoded.id);
     req.user = await User.findById(decoded.id);

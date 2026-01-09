@@ -39,19 +39,24 @@ const processApplications = (applications) => {
     if (appObj.resume && appObj.resume.url) {
       const url = appObj.resume.url.toLowerCase();
       console.log('Processing resume URL:', appObj.resume.url);
-      // Check if it's a PDF or document
-      const isPDFOrDoc = url.includes('.pdf') || url.includes('.doc') || 
-                         url.includes('.docx') || url.includes('/raw/upload/');
-      
-      console.log('isPDFOrDoc:', isPDFOrDoc, 'for URL:', url);
-      
-      // For all PDFs/Docs, use backend proxy URL
-      if (isPDFOrDoc) {
+
+      // Check if it's a PDF or document - more comprehensive detection
+      const isPDF = url.includes('.pdf') || url.endsWith('.pdf');
+      const isDoc = url.includes('.doc') || url.includes('.docx') || url.endsWith('.doc') || url.endsWith('.docx');
+      const isCloudinaryFile = url.includes('cloudinary.com') && (url.includes('/upload/') || url.includes('/raw/upload/') || url.includes('/image/upload/'));
+
+      // For all PDFs/Docs OR any Cloudinary upload (to be safe), use backend proxy URL
+      const isPDFOrDoc = isPDF || isDoc || (isCloudinaryFile && !url.includes('/image/upload/') && !url.includes('.jpg') && !url.includes('.jpeg') && !url.includes('.png') && !url.includes('.webp'));
+
+      console.log('Detection results - isPDF:', isPDF, 'isDoc:', isDoc, 'isCloudinaryFile:', isCloudinaryFile, 'isPDFOrDoc:', isPDFOrDoc);
+
+      // For all PDFs/Docs and Cloudinary files (except images), use backend proxy URL
+      if (isPDFOrDoc || isCloudinaryFile) {
         appObj.resume.proxyUrl = `http://localhost:4000/api/v1/application/resume/${appObj._id}`;
         appObj.resume.originalUrl = appObj.resume.url; // Keep original for fallback
         console.log('Added proxyUrl:', appObj.resume.proxyUrl);
       } else {
-        console.log('No proxyUrl added - not a PDF/doc');
+        console.log('No proxyUrl added - appears to be an image');
       }
     } else {
       console.log('No resume URL found for application:', appObj._id);
@@ -156,34 +161,39 @@ export const getResume = catchAsyncError(async (req, res, next) => {
   }
   
   // For images, redirect directly
-  if (!application.resume.url.includes('/raw/upload/')) {
+  const url = application.resume.url.toLowerCase();
+  const isImageFile = url.includes('.jpg') || url.includes('.jpeg') || url.includes('.png') || url.includes('.webp') || url.includes('.gif');
+  const isCloudinaryImage = url.includes('cloudinary.com') && url.includes('/image/upload/') && isImageFile;
+
+  if (isCloudinaryImage) {
+    console.log('Redirecting to direct image URL:', application.resume.url);
     return res.redirect(application.resume.url);
   }
+
+  // For PDFs/documents - redirect directly to Cloudinary (bypass ACL with direct access)
+  console.log('Processing PDF from Cloudinary:', application.resume.url);
   
-  // For PDFs/documents, fetch and stream the content
-  try {
-    const fetch = (await import('node-fetch')).default;
-    const response = await fetch(application.resume.url);
-    
-    if (!response.ok) {
-      return next(new ErrorHandler("Failed to fetch resume from storage.", 500));
-    }
-    
-    // Set appropriate headers
-    const contentType = response.headers.get('content-type') || 'application/pdf';
-    res.setHeader('Content-Type', contentType);
-    res.setHeader('Content-Disposition', 'inline');
-    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
-    
-    // Stream the PDF content
-    response.body.pipe(res);
-  } catch (error) {
-    console.error('Error proxying resume:', error);
-    return next(new ErrorHandler("Failed to load resume.", 500));
+  let publicUrl = application.resume.url;
+  
+  // For Cloudinary URLs, ensure they use secure HTTPS
+  if (publicUrl.includes('cloudinary.com')) {
+    publicUrl = publicUrl.replace('http://', 'https://');
   }
+  
+  console.log('Redirecting to Cloudinary URL:', publicUrl);
+  
+  // Instead of streaming, redirect directly - this bypasses our auth but uses Cloudinary's
+  return res.redirect(publicUrl);
 });
 
 export const postApplication = catchAsyncError(async (req, res, next) => {
+    console.log('postApplication called');
+    console.log('Cloudinary config check:', {
+      cloud_name: cloudinary.v2.config().cloud_name,
+      api_key: cloudinary.v2.config().api_key,
+      api_secret: cloudinary.v2.config().api_secret ? '***set***' : 'missing'
+    });
+    
     const { role } = req.user;
     if (role === "Employer") {
       return next(
@@ -203,14 +213,15 @@ export const postApplication = catchAsyncError(async (req, res, next) => {
     }
     
     // Determine resource type based on file type
-    const resourceType = resume.mimetype.startsWith('image/') ? 'image' : 'raw';
+    // Use 'raw' for PDFs and docs to avoid Cloudinary strict transformation restrictions
+    const resourceType = 'raw';
     
     const cloudinaryResponse = await cloudinary.uploader.upload(
       resume.tempFilePath,
       { 
         resource_type: resourceType,
         type: 'upload',
-        // Make files publicly accessible
+        access_mode: 'public', // Make files publicly accessible
         invalidate: true
       }
     );

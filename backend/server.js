@@ -1,5 +1,23 @@
-import app from "./app.js";
 import cloudinary from "cloudinary";
+import { config } from "dotenv";
+
+// Load environment variables first
+config({ path: "./config/config.env" });
+
+// Configure cloudinary before importing app
+console.log('Cloudinary Config:', {
+  cloud_name: process.env.CLOUDINARY_CLIENT_NAME,
+  api_key: process.env.CLOUDINARY_CLIENT_API,
+  api_secret: process.env.CLOUDINARY_CLIENT_SECRET ? '***configured***' : 'missing'
+});
+
+cloudinary.v2.config({
+  cloud_name: process.env.CLOUDINARY_CLIENT_NAME,
+  api_key: process.env.CLOUDINARY_CLIENT_API,
+  api_secret: process.env.CLOUDINARY_CLIENT_SECRET,
+});
+
+import app from "./app.js";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import jwt from "jsonwebtoken";
@@ -211,12 +229,6 @@ io.on("connection", (socket) => {
 
 // Export io for use in other files if needed
 export { io };
-
-cloudinary.v2.config({
-  cloud_name: process.env.CLOUDINARY_CLIENT_NAME,
-  api_key: process.env.CLOUDINARY_CLIENT_API,
-  api_secret: process.env.CLOUDINARY_CLIENT_SECRET,
-});
 
 httpServer.listen(process.env.PORT, () => {
   console.log(`Server running at port ${process.env.PORT}`);

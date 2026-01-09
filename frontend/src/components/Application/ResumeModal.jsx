@@ -15,31 +15,16 @@ const ResumeModal = ({ imageUrl, onClose }) => {
   );
   const isDocument = imageUrl && (imageUrl.includes('.doc') || imageUrl.includes('.docx'));
   
-  // Add auth token to URL for iframe to work
+  // Authentication is handled via cookies, no need to add tokens to URLs
   let pdfUrl = imageUrl;
-  if (isPDF && imageUrl.includes('/application/resume/')) {
-    const token = localStorage.getItem('token');
-    console.log('Token from localStorage:', token ? 'exists (length: ' + token.length + ')' : 'missing');
-    if (token) {
-      pdfUrl = `${imageUrl}?token=${token}`;
-      console.log('Final PDF URL with token:', pdfUrl);
-    } else {
-      console.error('No token found in localStorage!');
-    }
-  }
   console.log('PDF URL to display:', pdfUrl, 'isPDF:', isPDF);
   
   const handleDownload = () => {
     if (imageUrl) {
-      // For proxy URLs, add token for authentication
+      // Authentication is handled via cookies
       let downloadUrl = imageUrl;
       
-      if (imageUrl.includes('/application/resume/')) {
-        const token = localStorage.getItem('token');
-        if (token) {
-          downloadUrl = `${imageUrl}?token=${token}`;
-        }
-      } else if (imageUrl.includes('cloudinary.com') && !imageUrl.includes('fl_attachment')) {
+      if (imageUrl.includes('cloudinary.com') && !imageUrl.includes('fl_attachment')) {
         // Force download by adding fl_attachment flag for Cloudinary URLs
         downloadUrl = imageUrl.replace('/upload/', '/upload/fl_attachment/');
       }
@@ -50,17 +35,8 @@ const ResumeModal = ({ imageUrl, onClose }) => {
 
   const handleOpenInNewTab = () => {
     if (imageUrl) {
-      let openUrl = imageUrl;
-      
-      // For proxy URLs, add token for authentication
-      if (imageUrl.includes('/application/resume/')) {
-        const token = localStorage.getItem('token');
-        if (token) {
-          openUrl = `${imageUrl}?token=${token}`;
-        }
-      }
-      
-      window.open(openUrl, '_blank');
+      // Authentication is handled via cookies
+      window.open(imageUrl, '_blank');
     }
   };
 
@@ -125,8 +101,15 @@ const ResumeModal = ({ imageUrl, onClose }) => {
                   className="w-full h-full border-0"
                   title="Resume PDF"
                   allow="fullscreen"
-                  onLoad={() => console.log('PDF iframe loaded successfully')}
-                  onError={(e) => console.error('PDF iframe error:', e)}
+                  onLoad={() => {
+                    console.log('PDF iframe loaded successfully');
+                    console.log('PDF URL used:', pdfUrl);
+                  }}
+                  onError={(e) => {
+                    console.error('PDF iframe error:', e);
+                    console.error('Failed URL:', pdfUrl);
+                    console.error('Is PDF detected:', isPDF);
+                  }}
                 />
                 
                 {/* Alternative viewing options */}
@@ -150,7 +133,12 @@ const ResumeModal = ({ imageUrl, onClose }) => {
                       Download PDF
                     </button>
                   </div>
-                  <p className="text-xs text-gray-500 mt-3">URL: {pdfUrl}</p>
+                  <p className="text-xs text-gray-500 mt-3">
+                    URL: {pdfUrl.length > 50 ? pdfUrl.substring(0, 50) + '...' : pdfUrl}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Status: {isPDF ? 'PDF detected' : 'Not detected as PDF'}
+                  </p>
                 </div>
               </div>
             ) : isDocument ? (

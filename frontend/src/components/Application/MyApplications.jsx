@@ -38,6 +38,9 @@ const MyApplications = () => {
           withCredentials: true,
         });
         
+        console.log('Applications fetched:', res.data.applications);
+        console.log('First application resume data:', res.data.applications[0]?.resume);
+        
         setApplications(res.data.applications);
       } catch (error) {
         console.error("Error fetching applications:", error);
