@@ -29,13 +29,10 @@ const otpSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
+  // REMOVE the manual createdAt definition from here
 });
 
-// Index for automatic cleanup (TTL)
+// KEEP this line - it correctly handles the field creation and the TTL index
 otpSchema.index({ createdAt: 1 }, { expireAfterSeconds: 600 });
 
 export const OTP = mongoose.model("OTP", otpSchema);
