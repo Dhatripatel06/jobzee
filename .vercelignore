@@ -1,0 +1,12 @@
+node_modules
+.env
+.DS_Store
+*.log
+coverage
+.vscode
+__tests__
+*.test.js
+*.test.jsx
+test-results
+dist
+build
