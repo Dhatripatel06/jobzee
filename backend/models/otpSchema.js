@@ -32,11 +32,10 @@ const otpSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
-    expires: 600, // Document will be automatically deleted after 10 minutes
   },
 });
 
-// Index for automatic cleanup
+// Index for automatic cleanup (TTL)
 otpSchema.index({ createdAt: 1 }, { expireAfterSeconds: 600 });
 
 export const OTP = mongoose.model("OTP", otpSchema);
