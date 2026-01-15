@@ -26,7 +26,7 @@ app.get("/", (req, res) => {
 
 app.use(
   cors({
-    origin: ["https://jobzee-seven.vercel.app"], // Use your actual Vercel URL here
+    origin: ["https://jobzee-seven.vercel.app"], // Your actual Vercel URL
     methods: ["GET", "POST", "DELETE", "PUT"],
     credentials: true,
   })

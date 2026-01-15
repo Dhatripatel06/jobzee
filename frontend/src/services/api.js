@@ -2,13 +2,6 @@ import axios from "axios";
 
 const API_URL = import.meta.env.VITE_API_URL || "https://jobzee-qc8f.onrender.com/api/v1";
 
-// Ensure your socket URL also uses the live link
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "https://jobzee-qc8f.onrender.com";
-
-if (!API_URL) {
-  console.error("VITE_API_URL is not defined! Frontend cannot find the backend.");
-}
-
 // Create axios instance with default config
 const api = axios.create({
   baseURL: API_URL,
