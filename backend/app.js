@@ -1,4 +1,10 @@
-
+// Add this block
+app.get("/", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "JobZee Backend is Live and Running!"
+  });
+});
 
 import express from "express";
 import { dbConnection } from "./database/dbConnection.js";
