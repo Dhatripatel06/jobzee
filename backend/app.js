@@ -1,5 +1,3 @@
-
-
 import express from "express";
 import { dbConnection } from "./database/dbConnection.js";
 import jobRouter from "./routes/jobRouter.js";
