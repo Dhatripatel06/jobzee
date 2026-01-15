@@ -1,10 +1,4 @@
-// Add this block
-app.get("/", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "JobZee Backend is Live and Running!"
-  });
-});
+
 
 import express from "express";
 import { dbConnection } from "./database/dbConnection.js";
@@ -21,6 +15,14 @@ import dotenv from "dotenv";
 
 const app = express();
 dotenv.config({ path: "./config/config.env" });
+
+// Add this block
+app.get("/", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "JobZee Backend is Live and Running!"
+  });
+});
 
 app.use(
   cors({
