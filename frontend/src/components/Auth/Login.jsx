@@ -52,7 +52,8 @@ const Login = () => {
         }, 100);
       }
     } catch (error) {
-      toast.error(error.response.data.message);
+      const message = error.response?.data?.message || "Internal Server Error or Network Issue";
+      toast.error(message);
     }
   };
 
