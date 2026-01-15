@@ -1,3 +1,5 @@
+
+
 import express from "express";
 import { dbConnection } from "./database/dbConnection.js";
 import jobRouter from "./routes/jobRouter.js";
@@ -16,11 +18,9 @@ dotenv.config({ path: "./config/config.env" });
 
 app.use(
   cors({
-    origin: [process.env.FRONTEND_URL, "http://localhost:5173"],
-    method: ["GET", "POST", "DELETE", "PUT"],
+    origin: ["https://jobzee-gules.vercel.app"], // Use your actual Vercel URL here
+    methods: ["GET", "POST", "DELETE", "PUT"],
     credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization"],
-    exposedHeaders: ["Content-Disposition", "Content-Type"],
   })
 );
 
