@@ -16,6 +16,14 @@ import dotenv from "dotenv";
 const app = express();
 dotenv.config({ path: "./config/config.env" });
 
+// Use ONLY this block
+app.use(
+  cors({
+    origin: ["https://jobzee-seven.vercel.app"], 
+    methods: ["GET", "POST", "DELETE", "PUT"],
+    credentials: true,
+  })
+);
 // Add this block
 app.get("/", (req, res) => {
   res.status(200).json({
@@ -24,13 +32,7 @@ app.get("/", (req, res) => {
   });
 });
 
-app.use(
-  cors({
-    origin: ["https://jobzee-seven.vercel.app"], // Your actual Vercel URL
-    methods: ["GET", "POST", "DELETE", "PUT"],
-    credentials: true,
-  })
-);
+
 
 // Add headers for CORS and PDF viewing
 //app.use((req, res, next) => {

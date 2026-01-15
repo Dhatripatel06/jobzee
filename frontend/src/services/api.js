@@ -6,6 +6,9 @@ const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "https://jobzee-qc8f.onren
 const api = axios.create({
   baseURL: API_URL,
   withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
 // ==================== EMPLOYEE PROFILE APIs ====================
