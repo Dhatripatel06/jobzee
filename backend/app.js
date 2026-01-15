@@ -17,7 +17,8 @@ dotenv.config({ path: "./config/config.env" });
 // Use ONLY this block
 app.use(
   cors({
-    origin: ["https://jobzee-seven.vercel.app"], 
+    // Replace this with your new Render Frontend URL
+    origin: ["https://jobzee-frontend.onrender.com"], 
     methods: ["GET", "POST", "DELETE", "PUT"],
     credentials: true,
   })

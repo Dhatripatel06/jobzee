@@ -1,7 +1,9 @@
 import axios from "axios";
 
+// Replace the old Vercel/Localhost URL with your Render Backend URL
 const API_URL = import.meta.env.VITE_API_URL || "https://jobzee-qc8f.onrender.com/api/v1";
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "https://jobzee-qc8f.onrender.com";
+
 // Create axios instance with default config
 const api = axios.create({
   baseURL: API_URL,
