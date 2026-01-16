@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Context } from "../../main";
 import axios from "axios";
+import api from "../../services/api";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import ResumeModal from "./ResumeModal";
@@ -31,16 +32,14 @@ const MyApplications = () => {
 
       try {
         const endpoint = user.role === "Employer"
-          ? "http://localhost:4000/api/v1/application/employer/getall"
-          : "http://localhost:4000/api/v1/application/jobseeker/getall";
+          ? "/api/v1/application/employer/getall"
+          : "/api/v1/application/jobseeker/getall";
 
-        const res = await axios.get(endpoint, {
-          withCredentials: true,
-        });
-        
+        const res = await api.get(endpoint);
+
         console.log('Applications fetched:', res.data.applications);
         console.log('First application resume data:', res.data.applications[0]?.resume);
-        
+
         setApplications(res.data.applications);
       } catch (error) {
         console.error("Error fetching applications:", error);
@@ -56,11 +55,8 @@ const MyApplications = () => {
 
   const deleteApplication = async (id) => {
     try {
-      const res = await axios.delete(
-        `http://localhost:4000/api/v1/application/delete/${id}`,
-        {
-          withCredentials: true,
-        }
+      const res = await api.delete(
+        `/api/v1/application/delete/${id}`
       );
       toast.success(res.data.message);
       setApplications((prevApplication) =>
@@ -78,7 +74,7 @@ const MyApplications = () => {
     if (typeof resumeData === 'object') {
       console.log('resumeData object:', resumeData);
     }
-    
+
     // If resumeData is an object with proxyUrl, use it
     let urlToUse;
     if (typeof resumeData === 'object' && resumeData.proxyUrl) {
@@ -89,14 +85,14 @@ const MyApplications = () => {
       const imageUrl = resumeData.url;
       console.log('Resume object URL:', imageUrl);
       const isPDFOrDoc = imageUrl && (
-        imageUrl.toLowerCase().includes('.pdf') || 
-        imageUrl.toLowerCase().includes('.doc') || 
+        imageUrl.toLowerCase().includes('.pdf') ||
+        imageUrl.toLowerCase().includes('.doc') ||
         imageUrl.toLowerCase().includes('.docx') ||
         imageUrl.includes('/raw/upload/')
       );
-      
+
       if (applicationId && isPDFOrDoc) {
-        urlToUse = `http://localhost:4000/api/v1/application/resume/${applicationId}`;
+        urlToUse = `${import.meta.env.VITE_API_URL || "https://jobzee-qc8f.onrender.com"}/api/v1/application/resume/${applicationId}`;
         console.log('Constructed proxy URL:', urlToUse);
       } else {
         urlToUse = imageUrl;
@@ -107,21 +103,21 @@ const MyApplications = () => {
       const imageUrl = resumeData;
       console.log('String URL passed:', imageUrl);
       const isPDFOrDoc = imageUrl && (
-        imageUrl.toLowerCase().includes('.pdf') || 
-        imageUrl.toLowerCase().includes('.doc') || 
+        imageUrl.toLowerCase().includes('.pdf') ||
+        imageUrl.toLowerCase().includes('.doc') ||
         imageUrl.toLowerCase().includes('.docx') ||
         imageUrl.includes('/raw/upload/')
       );
-      
+
       if (applicationId && isPDFOrDoc) {
-        urlToUse = `http://localhost:4000/api/v1/application/resume/${applicationId}`;
+        urlToUse = `${import.meta.env.VITE_API_URL || "https://jobzee-qc8f.onrender.com"}/api/v1/application/resume/${applicationId}`;
         console.log('Constructed proxy URL from string:', urlToUse);
       } else {
         urlToUse = imageUrl;
         console.log('Using direct URL string:', urlToUse);
       }
     }
-    
+
     console.log('Final URL to use:', urlToUse);
     setResumeImageUrl(urlToUse);
     setModalOpen(true);
@@ -261,7 +257,7 @@ const JobSeekerCard = ({ element, deleteApplication, openModal, index }) => {
 
       {/* Resume Preview */}
       <div className="px-6 pb-4">
-        <div 
+        <div
           onClick={() => openModal(element.resume, element._id)}
           className="relative group cursor-pointer rounded-lg overflow-hidden border-2 border-gray-200 hover:border-[#2d5649] transition-all duration-300"
         >
@@ -379,7 +375,7 @@ const EmployerCard = ({ element, openModal, index }) => {
 
       {/* Resume Preview */}
       <div className="px-6 pb-4">
-        <div 
+        <div
           onClick={() => openModal(element.resume, element._id)}
           className="relative group cursor-pointer rounded-lg overflow-hidden border-2 border-gray-200 hover:border-[#2d5649] transition-all duration-300"
         >

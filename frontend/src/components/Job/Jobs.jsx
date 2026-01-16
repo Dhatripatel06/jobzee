@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
+import api from "../../services/api";
 import { Link, useNavigate } from "react-router-dom";
 import { Context } from "../../main";
 import { motion } from "framer-motion";
@@ -9,13 +10,10 @@ const Jobs = () => {
   const [jobs, setJobs] = useState([]);
   const { isAuthorized } = useContext(Context);
   const navigateTo = useNavigate();
-  
+
   useEffect(() => {
     try {
-      axios
-        .get("http://localhost:4000/api/v1/job/getall", {
-          withCredentials: true,
-        })
+      api.get("/api/v1/job/getall")
         .then((res) => {
           setJobs(res.data);
         });
@@ -23,7 +21,7 @@ const Jobs = () => {
       console.log(error);
     }
   }, []);
-  
+
   if (!isAuthorized) {
     navigateTo("/login");
   }
@@ -58,12 +56,12 @@ const Jobs = () => {
                   <h3 className="text-xl font-bold text-secondary-900 mb-3 group-hover:text-accent-500 transition-colors duration-200">
                     {job.title}
                   </h3>
-                  
+
                   <div className="flex items-center gap-2 text-secondary-600 mb-2">
                     <FaBriefcase className="text-accent-500" />
                     <span className="text-sm">{job.category}</span>
                   </div>
-                  
+
                   <div className="flex items-center gap-2 text-secondary-600">
                     <FaMapMarkerAlt className="text-accent-500" />
                     <span className="text-sm">{job.country}</span>

@@ -1,6 +1,7 @@
 import React, { useContext, useState } from "react";
 import { Context } from "../../main";
 import axios from "axios";
+import api from "../../services/api";
 import toast from "react-hot-toast";
 import { Link, Navigate } from "react-router-dom";
 import { FaPencilAlt } from "react-icons/fa";
@@ -22,15 +23,9 @@ const Register = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post(
-        "http://localhost:4000/api/v1/user/register",
-        { name, email, password, phone, role },
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+      const { data } = await api.post(
+        "/api/v1/user/register",
+        { name, email, password, phone, role }
       );
       toast.success(data.message);
       setName("");

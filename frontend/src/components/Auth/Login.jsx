@@ -1,6 +1,7 @@
 import React, { useContext, useState } from "react";
 import { Context } from "../../main";
 import axios from "axios";
+import api from "../../services/api";
 import toast from "react-hot-toast";
 import { Link, Navigate } from "react-router-dom";
 import { FaRegUser } from "react-icons/fa";
@@ -25,27 +26,21 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post(
-        "http://localhost:4000/api/v1/user/login",
-        { email, password, role },
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+      const { data } = await api.post(
+        "/api/v1/user/login",
+        { email, password, role }
       );
       toast.success(data.message);
       setEmail("");
       setRole("");
       setPassword("");
       setIsAuthorized(true);
-      
+
       // Store token in localStorage for socket connection
       if (data.token) {
         localStorage.setItem("token", data.token);
         console.log("Token stored in localStorage");
-        
+
         // Initialize socket connection after successful login
         setTimeout(() => {
           socketService.connect(data.token);
@@ -59,7 +54,7 @@ const Login = () => {
 
   const handleSendOTP = async (e) => {
     e.preventDefault();
-    
+
     try {
       const payload = {
         method: "email",
@@ -78,7 +73,7 @@ const Login = () => {
 
   const handleVerifyOTP = async (e) => {
     e.preventDefault();
-    
+
     try {
       const payload = {
         otp,
@@ -89,12 +84,12 @@ const Login = () => {
       const response = await verifyOTPAndLogin(payload);
       toast.success(response.message);
       setIsAuthorized(true);
-      
+
       // Store token in localStorage for socket connection
       if (response.token) {
         localStorage.setItem("token", response.token);
         console.log("Token stored in localStorage");
-        
+
         // Initialize socket connection after successful login
         setTimeout(() => {
           socketService.connect(response.token);
@@ -142,11 +137,10 @@ const Login = () => {
                   setLoginMode("password");
                   setOtpSent(false);
                 }}
-                className={`flex-1 py-2 px-4 rounded-lg font-semibold transition-colors ${
-                  loginMode === "password"
+                className={`flex-1 py-2 px-4 rounded-lg font-semibold transition-colors ${loginMode === "password"
                     ? "bg-blue-600 text-white"
                     : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
+                  }`}
               >
                 Password
               </button>
@@ -156,11 +150,10 @@ const Login = () => {
                   setLoginMode("otp");
                   setOtpSent(false);
                 }}
-                className={`flex-1 py-2 px-4 rounded-lg font-semibold transition-colors ${
-                  loginMode === "otp"
+                className={`flex-1 py-2 px-4 rounded-lg font-semibold transition-colors ${loginMode === "otp"
                     ? "bg-blue-600 text-white"
                     : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
+                  }`}
               >
                 OTP
               </button>

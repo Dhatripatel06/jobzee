@@ -2,6 +2,7 @@ import React, { useContext, useState } from "react";
 import { Context } from "../../main";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import api from "../../services/api";
 import toast from "react-hot-toast";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { HiX } from "react-icons/hi";
@@ -15,21 +16,16 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost:4000/api/v1/user/logout",
-        {
-          withCredentials: true,
-        }
-      );
+      const response = await api.get("/api/v1/user/logout");
       toast.success(response.data.message);
       setIsAuthorized(false);
-      
+
       // Clear token from localStorage
       localStorage.removeItem("token");
-      
+
       // Disconnect socket on logout
       socketService.disconnect();
-      
+
       navigateTo("/login");
     } catch (error) {
       toast.error(error.response.data.message);
@@ -95,11 +91,11 @@ const Navbar = () => {
             <NavLink to="/chat" onClick={() => setShow(false)}>
               Messages
             </NavLink>
-            <NavLink 
-              to={user && user.role === "Job Seeker" 
-                ? `/employee/${user._id}` 
+            <NavLink
+              to={user && user.role === "Job Seeker"
+                ? `/employee/${user._id}`
                 : `/employer/${user._id}`
-              } 
+              }
               onClick={() => setShow(false)}
             >
               My Profile
@@ -174,11 +170,11 @@ const Navbar = () => {
                 <MobileNavLink to="/chat" onClick={() => setShow(false)}>
                   Messages
                 </MobileNavLink>
-                <MobileNavLink 
-                  to={user && user.role === "Job Seeker" 
-                    ? `/employee/${user._id}` 
+                <MobileNavLink
+                  to={user && user.role === "Job Seeker"
+                    ? `/employee/${user._id}`
                     : `/employer/${user._id}`
-                  } 
+                  }
                   onClick={() => setShow(false)}
                 >
                   My Profile

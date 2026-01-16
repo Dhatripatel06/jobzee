@@ -1,16 +1,17 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import axios from "axios";
+import api from "../../services/api";
 import { useNavigate } from "react-router-dom";
 import { Context } from "../../main";
 import { motion } from "framer-motion";
-import { 
-  FaBriefcase, 
-  FaMapMarkerAlt, 
-  FaCity, 
-  FaGlobeAmericas, 
+import {
+  FaBriefcase,
+  FaMapMarkerAlt,
+  FaCity,
+  FaGlobeAmericas,
   FaDollarSign,
-  FaCalendarAlt 
+  FaCalendarAlt
 } from "react-icons/fa";
 
 const JobDetails = () => {
@@ -21,10 +22,8 @@ const JobDetails = () => {
   const { isAuthorized, user } = useContext(Context);
 
   useEffect(() => {
-    axios
-      .get(`http://localhost:4000/api/v1/job/${id}`, {
-        withCredentials: true,
-      })
+    api
+      .get(`/api/v1/job/${id}`)
       .then((res) => {
         setJob(res.data.job);
       })
