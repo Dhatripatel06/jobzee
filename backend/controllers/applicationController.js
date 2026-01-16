@@ -32,7 +32,7 @@ const getAuthenticatedUrl = (publicId, resourceType = 'raw') => {
 };
 
 // Helper function to process applications and add proxy URLs
-const processApplications = (applications) => {
+const processApplications = (applications, req) => {
   console.log('processApplications called with', applications.length, 'applications');
   return applications.map(app => {
     const appObj = app.toObject();
@@ -85,7 +85,7 @@ export const employerGetAllApplications = catchAsyncError(
     const applications = await Application.find({ "employerID.user": _id });
 
     // Process applications to add signed URLs for PDFs
-    const processedApplications = processApplications(applications);
+    const processedApplications = processApplications(applications, req);
 
     res.status(200).json({
       success: true,
@@ -106,7 +106,7 @@ export const jobseekerGetAllApplications = catchAsyncError(
     const applications = await Application.find({ "applicantID.user": _id });
 
     // Process applications to add signed URLs for PDFs
-    const processedApplications = processApplications(applications);
+    const processedApplications = processApplications(applications, req);
 
     res.status(200).json({
       success: true,
@@ -182,7 +182,15 @@ export const getResume = catchAsyncError(async (req, res, next) => {
 
   try {
     const https = await import('https');
-    const directUrl = application.resume.url.replace('http://', 'https://');
+
+    // Use getAuthenticatedUrl to generate a signed URL for fetching
+    // This handles both proper private_cdn access and fallback signed URLs
+    let directUrl = getAuthenticatedUrl(application.resume.public_id);
+
+    if (!directUrl) {
+      console.log('Failed to generate authenticated URL, falling back to stored URL');
+      directUrl = application.resume.url.replace('http://', 'https://');
+    }
 
     console.log('Attempting direct access to:', directUrl);
 
@@ -275,7 +283,7 @@ export const postApplication = catchAsyncError(async (req, res, next) => {
     }
   );
 
-  
+
   console.log('=== CLOUDINARY UPLOAD COMPLETE ===');
   console.log('Response URL:', cloudinaryResponse.secure_url);
   console.log('Contains /raw/upload/:', cloudinaryResponse.secure_url.includes('/raw/upload/'));
