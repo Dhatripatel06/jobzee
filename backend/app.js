@@ -20,7 +20,7 @@ const app = express();
 ================================ */
 app.use(
   cors({
-    origin: " https://jobzee-two.vercel.app",
+    origin: ["https://jobzee-two.vercel.app", "http://localhost:5173"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
   })
