@@ -6,6 +6,7 @@ import MessageBox from "./MessageBox";
 import socketService from "../../services/socketService";
 import Cookies from "js-cookie";
 import axios from "axios";
+import api from "../../services/api";
 import toast from "react-hot-toast";
 
 const Chat = () => {
@@ -39,11 +40,11 @@ const Chat = () => {
     if (isAuthorized && user) {
       const token = localStorage.getItem("token");
       console.log("Chat: Checking socket connection. Token:", token ? "exists" : "missing", "Connected:", socketService.isConnected());
-      
+
       if (token && !socketService.isConnected()) {
         console.log("Chat: Initializing socket connection...");
         socketService.connect(token);
-        
+
         // Wait a bit and check connection status
         setTimeout(() => {
           setSocketConnected(socketService.isConnected());
@@ -51,7 +52,7 @@ const Chat = () => {
       } else {
         setSocketConnected(socketService.isConnected());
       }
-      
+
       // Listen for new messages in real-time
       socketService.on("newMessage", (message) => {
         // This will be handled by MessageBox component
@@ -77,12 +78,9 @@ const Chat = () => {
   const startConversationWithUser = async (userId) => {
     try {
       setLoadingConversation(true);
-      
+
       // Check if conversation already exists
-      const { data: conversationsData } = await axios.get(
-        "http://localhost:4000/api/v1/message/conversations",
-        { withCredentials: true }
-      );
+      const { data: conversationsData } = await api.get("/api/v1/message/conversations");
 
       // Find existing conversation with this user
       const existingConversation = conversationsData.conversations?.find(
@@ -94,9 +92,8 @@ const Chat = () => {
         setSelectedConversation(existingConversation);
       } else {
         // Fetch user details to create a virtual conversation
-        const { data: userData } = await axios.get(
-          `http://localhost:4000/api/v1/user/employee/${userId}`,
-          { withCredentials: true }
+        const { data: userData } = await api.get(
+          `/api/v1/user/employee/${userId}`
         );
 
         // Create a virtual conversation object

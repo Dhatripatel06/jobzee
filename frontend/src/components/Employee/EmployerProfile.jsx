@@ -2,12 +2,13 @@ import React, { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getEmployerProfile } from "../../services/api";
 import axios from "axios";
+import api from "../../services/api";
 import { Context } from "../../main";
-import { 
-  FaBuilding, 
-  FaEnvelope, 
-  FaPhone, 
-  FaArrowLeft, 
+import {
+  FaBuilding,
+  FaEnvelope,
+  FaPhone,
+  FaArrowLeft,
   FaComments,
   FaEdit,
   FaGlobe,
@@ -58,10 +59,7 @@ const EmployerProfile = () => {
   const fetchEmployerJobs = async () => {
     try {
       setLoadingJobs(true);
-      const response = await axios.get(
-        `http://localhost:4000/api/v1/job/getall`,
-        { withCredentials: true }
-      );
+      const response = await api.get(`/api/v1/job/getall`);
       // Filter jobs by this employer
       const employerJobs = response.data.jobs.filter(
         job => job.postedBy === id
@@ -236,7 +234,7 @@ const EmployerProfile = () => {
                   </span>
                 )}
               </h2>
-              
+
               {loadingJobs ? (
                 <div className="text-center py-8">
                   <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#2d5649]"></div>

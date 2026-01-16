@@ -1,10 +1,11 @@
 import React, { useState, useContext } from "react";
 import { Context } from "../../main";
 import axios from "axios";
-import { 
-  FaUserCircle, 
-  FaTimes, 
-  FaPlus, 
+import api from "../../services/api";
+import {
+  FaUserCircle,
+  FaTimes,
+  FaPlus,
   FaTrash,
   FaBriefcase,
   FaGraduationCap,
@@ -15,7 +16,7 @@ import toast from "react-hot-toast";
 
 const EditProfile = ({ onClose, onUpdate }) => {
   const { user, setUser } = useContext(Context);
-  
+
   const [formData, setFormData] = useState({
     name: user?.name || "",
     headline: user?.headline || "",
@@ -27,36 +28,36 @@ const EditProfile = ({ onClose, onUpdate }) => {
     showEmail: user?.showEmail || false,
     showPhone: user?.showPhone || false,
   });
-  
+
   const [experience, setExperience] = useState(
-    user?.experience && user.experience.length > 0 
-      ? user.experience 
+    user?.experience && user.experience.length > 0
+      ? user.experience
       : [{
-          company: "",
-          role: "",
-          location: "",
-          startDate: "",
-          endDate: "",
-          current: false,
-          description: ""
-        }]
+        company: "",
+        role: "",
+        location: "",
+        startDate: "",
+        endDate: "",
+        current: false,
+        description: ""
+      }]
   );
 
   const [education, setEducation] = useState(
     user?.education && user.education.length > 0
       ? user.education
       : [{
-          school: "",
-          degree: "",
-          fieldOfStudy: "",
-          startDate: "",
-          endDate: "",
-          current: false,
-          grade: "",
-          description: ""
-        }]
+        school: "",
+        degree: "",
+        fieldOfStudy: "",
+        startDate: "",
+        endDate: "",
+        current: false,
+        grade: "",
+        description: ""
+      }]
   );
-  
+
   const [profilePhoto, setProfilePhoto] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(user?.profilePhoto?.url || "");
   const [loading, setLoading] = useState(false);
@@ -140,58 +141,57 @@ const EditProfile = ({ onClose, onUpdate }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     try {
       setLoading(true);
-      
+
       const submitData = new FormData();
       submitData.append("name", formData.name);
       submitData.append("headline", formData.headline);
       submitData.append("bio", formData.bio);
       submitData.append("skills", formData.skills);
-      
+
       // Employer-specific fields
       if (user?.role === "Employer") {
         submitData.append("companyWebsite", formData.companyWebsite);
         submitData.append("industry", formData.industry);
         submitData.append("companySize", formData.companySize);
       }
-      
+
       submitData.append("showEmail", formData.showEmail);
       submitData.append("showPhone", formData.showPhone);
-      
+
       // Add experience array
-      submitData.append("experience", JSON.stringify(experience.filter(exp => 
+      submitData.append("experience", JSON.stringify(experience.filter(exp =>
         exp.company || exp.role
       )));
-      
+
       // Add education array
-      submitData.append("education", JSON.stringify(education.filter(edu => 
+      submitData.append("education", JSON.stringify(education.filter(edu =>
         edu.school || edu.degree
       )));
-      
+
       if (profilePhoto) {
         submitData.append("profilePhoto", profilePhoto);
       }
 
-      const response = await axios.put(
-        "http://localhost:4000/api/v1/user/employee/profile",
+      const response = await api.put(
+        "/api/v1/user/employee/profile",
         submitData,
         {
-          withCredentials: true,
           headers: {
             "Content-Type": "multipart/form-data",
           },
         }
       );
-      
+
       toast.success("Profile updated successfully!");
       setUser(response.data.user);
-      
+
       if (onUpdate) {
         onUpdate(response.data.user);
       }
-      
+
       if (onClose) {
         onClose();
       }
@@ -300,7 +300,7 @@ const EditProfile = ({ onClose, onUpdate }) => {
           {user?.role === "Employer" && (
             <div className="space-y-4 border-t pt-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Company Information</h3>
-              
+
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Company Website
@@ -314,7 +314,7 @@ const EditProfile = ({ onClose, onUpdate }) => {
                   placeholder="https://www.yourcompany.com"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Industry
@@ -328,7 +328,7 @@ const EditProfile = ({ onClose, onUpdate }) => {
                   placeholder="e.g., Technology, Finance, Healthcare"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Company Size
@@ -375,273 +375,273 @@ const EditProfile = ({ onClose, onUpdate }) => {
 
           {/* Experience Section - Job Seekers Only */}
           {user?.role === "Job Seeker" && (
-          <div className="border-t pt-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <FaBriefcase className="text-[#2d5649]" />
-                Experience
-              </h3>
-              <button
-                type="button"
-                onClick={addExperience}
-                className="flex items-center gap-2 px-4 py-2 bg-[#2d5649] text-white rounded-lg hover:bg-[#3d7359] transition-colors text-sm"
-              >
-                <FaPlus />
-                Add Experience
-              </button>
-            </div>
-            
-            <div className="space-y-6">
-              {experience.map((exp, index) => (
-                <div key={index} className="p-4 border-2 border-gray-200 rounded-lg relative">
-                  {experience.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeExperience(index)}
-                      className="absolute top-4 right-4 p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                    >
-                      <FaTrash />
-                    </button>
-                  )}
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Company Name
-                      </label>
-                      <input
-                        type="text"
-                        value={exp.company}
-                        onChange={(e) => handleExperienceChange(index, 'company', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5649] focus:border-transparent"
-                        placeholder="e.g., Google"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Role / Title
-                      </label>
-                      <input
-                        type="text"
-                        value={exp.role}
-                        onChange={(e) => handleExperienceChange(index, 'role', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5649] focus:border-transparent"
-                        placeholder="e.g., Senior Developer"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Location
-                      </label>
-                      <input
-                        type="text"
-                        value={exp.location}
-                        onChange={(e) => handleExperienceChange(index, 'location', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5649] focus:border-transparent"
-                        placeholder="e.g., San Francisco, CA"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">
-                        <input
-                          type="checkbox"
-                          checked={exp.current}
-                          onChange={(e) => handleExperienceChange(index, 'current', e.target.checked)}
-                          className="w-4 h-4 text-[#2d5649] rounded focus:ring-2 focus:ring-[#2d5649]"
-                        />
-                        Currently working here
-                      </label>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Start Date
-                      </label>
-                      <input
-                        type="date"
-                        value={exp.startDate ? new Date(exp.startDate).toISOString().split('T')[0] : ''}
-                        onChange={(e) => handleExperienceChange(index, 'startDate', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5649] focus:border-transparent"
-                      />
-                    </div>
-                    
-                    {!exp.current && (
+            <div className="border-t pt-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  <FaBriefcase className="text-[#2d5649]" />
+                  Experience
+                </h3>
+                <button
+                  type="button"
+                  onClick={addExperience}
+                  className="flex items-center gap-2 px-4 py-2 bg-[#2d5649] text-white rounded-lg hover:bg-[#3d7359] transition-colors text-sm"
+                >
+                  <FaPlus />
+                  Add Experience
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {experience.map((exp, index) => (
+                  <div key={index} className="p-4 border-2 border-gray-200 rounded-lg relative">
+                    {experience.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeExperience(index)}
+                        className="absolute top-4 right-4 p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        <FaTrash />
+                      </button>
+                    )}
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          End Date
+                          Company Name
+                        </label>
+                        <input
+                          type="text"
+                          value={exp.company}
+                          onChange={(e) => handleExperienceChange(index, 'company', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5649] focus:border-transparent"
+                          placeholder="e.g., Google"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Role / Title
+                        </label>
+                        <input
+                          type="text"
+                          value={exp.role}
+                          onChange={(e) => handleExperienceChange(index, 'role', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5649] focus:border-transparent"
+                          placeholder="e.g., Senior Developer"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Location
+                        </label>
+                        <input
+                          type="text"
+                          value={exp.location}
+                          onChange={(e) => handleExperienceChange(index, 'location', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5649] focus:border-transparent"
+                          placeholder="e.g., San Francisco, CA"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">
+                          <input
+                            type="checkbox"
+                            checked={exp.current}
+                            onChange={(e) => handleExperienceChange(index, 'current', e.target.checked)}
+                            className="w-4 h-4 text-[#2d5649] rounded focus:ring-2 focus:ring-[#2d5649]"
+                          />
+                          Currently working here
+                        </label>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Start Date
                         </label>
                         <input
                           type="date"
-                          value={exp.endDate ? new Date(exp.endDate).toISOString().split('T')[0] : ''}
-                          onChange={(e) => handleExperienceChange(index, 'endDate', e.target.value)}
+                          value={exp.startDate ? new Date(exp.startDate).toISOString().split('T')[0] : ''}
+                          onChange={(e) => handleExperienceChange(index, 'startDate', e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5649] focus:border-transparent"
                         />
                       </div>
-                    )}
+
+                      {!exp.current && (
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            End Date
+                          </label>
+                          <input
+                            type="date"
+                            value={exp.endDate ? new Date(exp.endDate).toISOString().split('T')[0] : ''}
+                            onChange={(e) => handleExperienceChange(index, 'endDate', e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5649] focus:border-transparent"
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="mt-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Description
+                      </label>
+                      <textarea
+                        value={exp.description}
+                        onChange={(e) => handleExperienceChange(index, 'description', e.target.value)}
+                        rows="3"
+                        maxLength="1000"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5649] focus:border-transparent resize-none"
+                        placeholder="Describe your responsibilities and achievements..."
+                      />
+                    </div>
                   </div>
-                  
-                  <div className="mt-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Description
-                    </label>
-                    <textarea
-                      value={exp.description}
-                      onChange={(e) => handleExperienceChange(index, 'description', e.target.value)}
-                      rows="3"
-                      maxLength="1000"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5649] focus:border-transparent resize-none"
-                      placeholder="Describe your responsibilities and achievements..."
-                    />
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
           )}
 
           {/* Education Section - Job Seekers Only */}
           {user?.role === "Job Seeker" && (
-          <div className="border-t pt-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <FaGraduationCap className="text-[#2d5649]" />
-                Education
-              </h3>
-              <button
-                type="button"
-                onClick={addEducation}
-                className="flex items-center gap-2 px-4 py-2 bg-[#2d5649] text-white rounded-lg hover:bg-[#3d7359] transition-colors text-sm"
-              >
-                <FaPlus />
-                Add Education
-              </button>
-            </div>
-            
-            <div className="space-y-6">
-              {education.map((edu, index) => (
-                <div key={index} className="p-4 border-2 border-gray-200 rounded-lg relative">
-                  {education.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeEducation(index)}
-                      className="absolute top-4 right-4 p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                    >
-                      <FaTrash />
-                    </button>
-                  )}
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        School / University
-                      </label>
-                      <input
-                        type="text"
-                        value={edu.school}
-                        onChange={(e) => handleEducationChange(index, 'school', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5649] focus:border-transparent"
-                        placeholder="e.g., Stanford University"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Degree
-                      </label>
-                      <input
-                        type="text"
-                        value={edu.degree}
-                        onChange={(e) => handleEducationChange(index, 'degree', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5649] focus:border-transparent"
-                        placeholder="e.g., Bachelor's"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Field of Study
-                      </label>
-                      <input
-                        type="text"
-                        value={edu.fieldOfStudy}
-                        onChange={(e) => handleEducationChange(index, 'fieldOfStudy', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5649] focus:border-transparent"
-                        placeholder="e.g., Computer Science"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Grade / GPA
-                      </label>
-                      <input
-                        type="text"
-                        value={edu.grade}
-                        onChange={(e) => handleEducationChange(index, 'grade', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5649] focus:border-transparent"
-                        placeholder="e.g., 3.8 GPA"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">
-                        <input
-                          type="checkbox"
-                          checked={edu.current}
-                          onChange={(e) => handleEducationChange(index, 'current', e.target.checked)}
-                          className="w-4 h-4 text-[#2d5649] rounded focus:ring-2 focus:ring-[#2d5649]"
-                        />
-                        Currently studying here
-                      </label>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Start Date
-                      </label>
-                      <input
-                        type="date"
-                        value={edu.startDate ? new Date(edu.startDate).toISOString().split('T')[0] : ''}
-                        onChange={(e) => handleEducationChange(index, 'startDate', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5649] focus:border-transparent"
-                      />
-                    </div>
-                    
-                    {!edu.current && (
+            <div className="border-t pt-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  <FaGraduationCap className="text-[#2d5649]" />
+                  Education
+                </h3>
+                <button
+                  type="button"
+                  onClick={addEducation}
+                  className="flex items-center gap-2 px-4 py-2 bg-[#2d5649] text-white rounded-lg hover:bg-[#3d7359] transition-colors text-sm"
+                >
+                  <FaPlus />
+                  Add Education
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {education.map((edu, index) => (
+                  <div key={index} className="p-4 border-2 border-gray-200 rounded-lg relative">
+                    {education.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeEducation(index)}
+                        className="absolute top-4 right-4 p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        <FaTrash />
+                      </button>
+                    )}
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          End Date
+                          School / University
+                        </label>
+                        <input
+                          type="text"
+                          value={edu.school}
+                          onChange={(e) => handleEducationChange(index, 'school', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5649] focus:border-transparent"
+                          placeholder="e.g., Stanford University"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Degree
+                        </label>
+                        <input
+                          type="text"
+                          value={edu.degree}
+                          onChange={(e) => handleEducationChange(index, 'degree', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5649] focus:border-transparent"
+                          placeholder="e.g., Bachelor's"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Field of Study
+                        </label>
+                        <input
+                          type="text"
+                          value={edu.fieldOfStudy}
+                          onChange={(e) => handleEducationChange(index, 'fieldOfStudy', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5649] focus:border-transparent"
+                          placeholder="e.g., Computer Science"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Grade / GPA
+                        </label>
+                        <input
+                          type="text"
+                          value={edu.grade}
+                          onChange={(e) => handleEducationChange(index, 'grade', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5649] focus:border-transparent"
+                          placeholder="e.g., 3.8 GPA"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">
+                          <input
+                            type="checkbox"
+                            checked={edu.current}
+                            onChange={(e) => handleEducationChange(index, 'current', e.target.checked)}
+                            className="w-4 h-4 text-[#2d5649] rounded focus:ring-2 focus:ring-[#2d5649]"
+                          />
+                          Currently studying here
+                        </label>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Start Date
                         </label>
                         <input
                           type="date"
-                          value={edu.endDate ? new Date(edu.endDate).toISOString().split('T')[0] : ''}
-                          onChange={(e) => handleEducationChange(index, 'endDate', e.target.value)}
+                          value={edu.startDate ? new Date(edu.startDate).toISOString().split('T')[0] : ''}
+                          onChange={(e) => handleEducationChange(index, 'startDate', e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5649] focus:border-transparent"
                         />
                       </div>
-                    )}
+
+                      {!edu.current && (
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            End Date
+                          </label>
+                          <input
+                            type="date"
+                            value={edu.endDate ? new Date(edu.endDate).toISOString().split('T')[0] : ''}
+                            onChange={(e) => handleEducationChange(index, 'endDate', e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5649] focus:border-transparent"
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="mt-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Description
+                      </label>
+                      <textarea
+                        value={edu.description}
+                        onChange={(e) => handleEducationChange(index, 'description', e.target.value)}
+                        rows="2"
+                        maxLength="500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5649] focus:border-transparent resize-none"
+                        placeholder="Activities, societies, achievements..."
+                      />
+                    </div>
                   </div>
-                  
-                  <div className="mt-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Description
-                    </label>
-                    <textarea
-                      value={edu.description}
-                      onChange={(e) => handleEducationChange(index, 'description', e.target.value)}
-                      rows="2"
-                      maxLength="500"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5649] focus:border-transparent resize-none"
-                      placeholder="Activities, societies, achievements..."
-                    />
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
           )}
 
           {/* Privacy Settings */}
@@ -669,7 +669,7 @@ const EditProfile = ({ onClose, onUpdate }) => {
                   )}
                 </button>
               </div>
-              
+
               <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
