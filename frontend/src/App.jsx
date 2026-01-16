@@ -21,26 +21,24 @@ import Chat from "./components/Chat/Chat";
 import ResumeToolkit from "./components/Tools/ResumeToolkit";
 import NotFound from "./components/NotFound/NotFound";
 import axios from "axios";
+import api from "./services/api";
 import { Toaster } from "react-hot-toast";
 import socketService from "./services/socketService";
 import Cookies from "js-cookie";
 
 const App = () => {
   const { isAuthorized, setIsAuthorized, setUser } = useContext(Context);
-  
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:4000/api/v1/user/getuser",
-          {
-            withCredentials: true,
-          }
-        );
+        const response = await api.get("/api/v1/user/getuser", {
+          withCredentials: true,
+        });
         console.log("User fetched:", response.data);
         setUser(response.data.user);
         setIsAuthorized(true);
-        
+
         // Initialize socket connection after user is fetched
         const token = localStorage.getItem("token");
         console.log("Token from localStorage:", token ? "present" : "missing");
@@ -89,7 +87,7 @@ const App = () => {
           </Routes>
         </main>
         <Footer />
-        <Toaster 
+        <Toaster
           position="top-right"
           toastOptions={{
             duration: 3000,
