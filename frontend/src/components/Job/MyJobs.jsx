@@ -19,6 +19,9 @@ const MyJobs = () => {
   //Fetching all jobs
   useEffect(() => {
     const fetchJobs = async () => {
+      // Don't fetch if not authorized
+      if (!isAuthorized || !user?._id) return;
+
       try {
         const { data } = await api.get("/api/v1/job/getmyjobs");
         setMyJobs(data.myJobs);
@@ -111,8 +114,8 @@ const MyJobs = () => {
                   exit={{ opacity: 0, x: -100 }}
                   transition={{ duration: 0.4, delay: index * 0.1 }}
                   className={`bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 ${editingMode === element._id
-                      ? "ring-4 ring-[#2d5649] ring-opacity-50 shadow-2xl"
-                      : "hover:shadow-xl"
+                    ? "ring-4 ring-[#2d5649] ring-opacity-50 shadow-2xl"
+                    : "hover:shadow-xl"
                     }`}
                 >
                   <div className="p-8">
@@ -132,8 +135,8 @@ const MyJobs = () => {
                             handleInputChange(element._id, "title", e.target.value)
                           }
                           className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 ${editingMode === element._id
-                              ? "border-[#2d5649] bg-white focus:ring-2 focus:ring-[#2d5649] focus:ring-opacity-50"
-                              : "border-gray-200 bg-gray-50 cursor-not-allowed"
+                            ? "border-[#2d5649] bg-white focus:ring-2 focus:ring-[#2d5649] focus:ring-opacity-50"
+                            : "border-gray-200 bg-gray-50 cursor-not-allowed"
                             } outline-none`}
                         />
                       </div>
@@ -152,8 +155,8 @@ const MyJobs = () => {
                             handleInputChange(element._id, "country", e.target.value)
                           }
                           className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 ${editingMode === element._id
-                              ? "border-[#2d5649] bg-white focus:ring-2 focus:ring-[#2d5649] focus:ring-opacity-50"
-                              : "border-gray-200 bg-gray-50 cursor-not-allowed"
+                            ? "border-[#2d5649] bg-white focus:ring-2 focus:ring-[#2d5649] focus:ring-opacity-50"
+                            : "border-gray-200 bg-gray-50 cursor-not-allowed"
                             } outline-none`}
                         />
                       </div>
@@ -172,8 +175,8 @@ const MyJobs = () => {
                             handleInputChange(element._id, "city", e.target.value)
                           }
                           className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 ${editingMode === element._id
-                              ? "border-[#2d5649] bg-white focus:ring-2 focus:ring-[#2d5649] focus:ring-opacity-50"
-                              : "border-gray-200 bg-gray-50 cursor-not-allowed"
+                            ? "border-[#2d5649] bg-white focus:ring-2 focus:ring-[#2d5649] focus:ring-opacity-50"
+                            : "border-gray-200 bg-gray-50 cursor-not-allowed"
                             } outline-none`}
                         />
                       </div>
@@ -191,8 +194,8 @@ const MyJobs = () => {
                           }
                           disabled={editingMode !== element._id}
                           className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 ${editingMode === element._id
-                              ? "border-[#2d5649] bg-white focus:ring-2 focus:ring-[#2d5649] focus:ring-opacity-50"
-                              : "border-gray-200 bg-gray-50 cursor-not-allowed"
+                            ? "border-[#2d5649] bg-white focus:ring-2 focus:ring-[#2d5649] focus:ring-opacity-50"
+                            : "border-gray-200 bg-gray-50 cursor-not-allowed"
                             } outline-none`}
                         >
                           <option value="Graphics & Design">Graphics & Design</option>
@@ -223,8 +226,8 @@ const MyJobs = () => {
                               handleInputChange(element._id, "fixedSalary", e.target.value)
                             }
                             className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 ${editingMode === element._id
-                                ? "border-[#2d5649] bg-white focus:ring-2 focus:ring-[#2d5649] focus:ring-opacity-50"
-                                : "border-gray-200 bg-gray-50 cursor-not-allowed"
+                              ? "border-[#2d5649] bg-white focus:ring-2 focus:ring-[#2d5649] focus:ring-opacity-50"
+                              : "border-gray-200 bg-gray-50 cursor-not-allowed"
                               } outline-none`}
                           />
                         ) : (
@@ -238,8 +241,8 @@ const MyJobs = () => {
                               }
                               placeholder="From"
                               className={`w-1/2 px-4 py-2.5 rounded-lg border-2 transition-all duration-200 ${editingMode === element._id
-                                  ? "border-[#2d5649] bg-white focus:ring-2 focus:ring-[#2d5649] focus:ring-opacity-50"
-                                  : "border-gray-200 bg-gray-50 cursor-not-allowed"
+                                ? "border-[#2d5649] bg-white focus:ring-2 focus:ring-[#2d5649] focus:ring-opacity-50"
+                                : "border-gray-200 bg-gray-50 cursor-not-allowed"
                                 } outline-none`}
                             />
                             <input
@@ -251,8 +254,8 @@ const MyJobs = () => {
                               }
                               placeholder="To"
                               className={`w-1/2 px-4 py-2.5 rounded-lg border-2 transition-all duration-200 ${editingMode === element._id
-                                  ? "border-[#2d5649] bg-white focus:ring-2 focus:ring-[#2d5649] focus:ring-opacity-50"
-                                  : "border-gray-200 bg-gray-50 cursor-not-allowed"
+                                ? "border-[#2d5649] bg-white focus:ring-2 focus:ring-[#2d5649] focus:ring-opacity-50"
+                                : "border-gray-200 bg-gray-50 cursor-not-allowed"
                                 } outline-none`}
                             />
                           </div>
@@ -272,8 +275,8 @@ const MyJobs = () => {
                           }
                           disabled={editingMode !== element._id}
                           className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 ${editingMode === element._id
-                              ? "border-[#2d5649] bg-white focus:ring-2 focus:ring-[#2d5649] focus:ring-opacity-50"
-                              : "border-gray-200 bg-gray-50 cursor-not-allowed"
+                            ? "border-[#2d5649] bg-white focus:ring-2 focus:ring-[#2d5649] focus:ring-opacity-50"
+                            : "border-gray-200 bg-gray-50 cursor-not-allowed"
                             } outline-none`}
                         >
                           <option value={true}>Expired</option>
@@ -298,8 +301,8 @@ const MyJobs = () => {
                             handleInputChange(element._id, "description", e.target.value)
                           }
                           className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 resize-none ${editingMode === element._id
-                              ? "border-[#2d5649] bg-white focus:ring-2 focus:ring-[#2d5649] focus:ring-opacity-50"
-                              : "border-gray-200 bg-gray-50 cursor-not-allowed"
+                            ? "border-[#2d5649] bg-white focus:ring-2 focus:ring-[#2d5649] focus:ring-opacity-50"
+                            : "border-gray-200 bg-gray-50 cursor-not-allowed"
                             } outline-none`}
                         />
                       </div>
@@ -318,8 +321,8 @@ const MyJobs = () => {
                             handleInputChange(element._id, "location", e.target.value)
                           }
                           className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 resize-none ${editingMode === element._id
-                              ? "border-[#2d5649] bg-white focus:ring-2 focus:ring-[#2d5649] focus:ring-opacity-50"
-                              : "border-gray-200 bg-gray-50 cursor-not-allowed"
+                            ? "border-[#2d5649] bg-white focus:ring-2 focus:ring-[#2d5649] focus:ring-opacity-50"
+                            : "border-gray-200 bg-gray-50 cursor-not-allowed"
                             } outline-none`}
                         />
                       </div>

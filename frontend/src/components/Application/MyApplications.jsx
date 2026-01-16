@@ -26,7 +26,7 @@ const MyApplications = () => {
 
     const fetchApplications = async () => {
       // Only fetch if user is loaded
-      if (!user) {
+      if (!user?._id) {
         return;
       }
 
