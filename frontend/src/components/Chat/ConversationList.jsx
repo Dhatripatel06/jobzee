@@ -22,6 +22,7 @@ const ConversationList = ({ onSelectConversation, selectedConversationId }) => {
   }, []);
 
   const fetchConversations = async () => {
+    if (!user?._id) return; // Don't fetch if no user
     try {
       setLoading(true);
       const data = await getConversations();
@@ -82,9 +83,9 @@ const ConversationList = ({ onSelectConversation, selectedConversationId }) => {
       prevConvs.map((conv) =>
         conv.participant._id === userId
           ? {
-              ...conv,
-              participant: { ...conv.participant, isOnline },
-            }
+            ...conv,
+            participant: { ...conv.participant, isOnline },
+          }
           : conv
       )
     );
@@ -171,11 +172,10 @@ const ConversationList = ({ onSelectConversation, selectedConversationId }) => {
                 <div
                   key={conv._id}
                   onClick={() => onSelectConversation(conv)}
-                  className={`flex items-center gap-3 p-4 cursor-pointer transition-colors border-b ${
-                    isSelected
+                  className={`flex items-center gap-3 p-4 cursor-pointer transition-colors border-b ${isSelected
                       ? "bg-blue-50 border-l-4 border-l-blue-600"
                       : "hover:bg-gray-50"
-                  }`}
+                    }`}
                 >
                   {/* Profile Photo with Online Status */}
                   <div className="relative flex-shrink-0">
@@ -189,9 +189,8 @@ const ConversationList = ({ onSelectConversation, selectedConversationId }) => {
                       <FaUserCircle className="w-12 h-12 text-gray-300" />
                     )}
                     <span
-                      className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${
-                        isOnline ? "bg-green-500" : "bg-gray-400"
-                      }`}
+                      className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${isOnline ? "bg-green-500" : "bg-gray-400"
+                        }`}
                     ></span>
                   </div>
 

@@ -35,6 +35,10 @@ const Chat = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  if (!isAuthorized) {
+    return null; // Don't render anything while redirecting
+  }
+
   useEffect(() => {
     // Initialize socket connection when user is authorized
     if (isAuthorized && user) {
