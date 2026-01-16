@@ -92,13 +92,16 @@ const Navbar = () => {
               Messages
             </NavLink>
             <NavLink
-              to={user && user.role === "Job Seeker"
-                ? `/employee/${user._id}`
-                : `/employer/${user._id}`
+              to={
+                user?.role === "Job Seeker"
+                  ? `/employee/${user._id}`
+                  : user?.role === "Employer"
+                    ? `/employer/${user._id}`
+                    : "/"
               }
               onClick={() => setShow(false)}
             >
-              My Profile
+              {user?.role === "Job Seeker" ? "My Profile" : "Company Profile"}
             </NavLink>
             <button
               onClick={handleLogout}

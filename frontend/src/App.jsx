@@ -51,7 +51,7 @@ const App = () => {
       } catch (error) {
         console.log("User not authenticated:", error.response?.status);
         setIsAuthorized(false);
-        setUser(null);
+        setUser({});
         // Clear token from localStorage
         localStorage.removeItem("token");
         // Disconnect socket if not authorized
