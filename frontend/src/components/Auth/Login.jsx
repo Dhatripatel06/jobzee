@@ -15,7 +15,7 @@ import Cookies from "js-cookie";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("");
+  const [role, setRole] = useState("Job Seeker");
   const [loginMode, setLoginMode] = useState("password"); // "password" or "otp"
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
@@ -138,8 +138,8 @@ const Login = () => {
                   setOtpSent(false);
                 }}
                 className={`flex-1 py-2 px-4 rounded-lg font-semibold transition-colors ${loginMode === "password"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                   }`}
               >
                 Password
@@ -151,8 +151,8 @@ const Login = () => {
                   setOtpSent(false);
                 }}
                 className={`flex-1 py-2 px-4 rounded-lg font-semibold transition-colors ${loginMode === "otp"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                   }`}
               >
                 OTP
