@@ -15,19 +15,19 @@ const api = axios.create({
 });
 
 // ==================== EMPLOYEE PROFILE APIs ====================
-
-export const getAllEmployees = async (params = {}) => {
-  const response = await api.get("/user/employees", { params });
+// Employee API helpers
+export const getAllEmployees = async (params) => {
+  const response = await api.get("/api/v1/user/employees", { params });
   return response.data;
 };
 
 export const getEmployeeProfile = async (id) => {
-  const response = await api.get(`/user/employee/${id}`);
+  const response = await api.get(`/api/v1/user/employee/${id}`);
   return response.data;
 };
 
 export const updateEmployeeProfile = async (formData) => {
-  const response = await api.put("/user/employee/profile", formData, {
+  const response = await api.put("/api/v1/user/employee/profile", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
@@ -37,8 +37,8 @@ export const updateEmployeeProfile = async (formData) => {
 
 // ==================== EMPLOYER PROFILE APIs ====================
 
-export const getEmployerProfile = async (id) => {
-  const response = await api.get(`/user/employee/${id}`); // Using same endpoint as it returns any user
+export const getUserPublicProfile = async (id) => {
+  const response = await api.get(`/api/v1/user/employee/${id}`); // Using same endpoint as it returns any user
   return response.data;
 };
 
