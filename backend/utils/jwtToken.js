@@ -6,7 +6,7 @@ export const sendToken = (user, statusCode, res, message) => {
     ),
     httpOnly: true,
     secure: true, // Required for SameSite: None
-    sameSite: "None", // Required for cross-site (Vercel frontend -> Render backend)
+    sameSite: "None", // Required for cross-site (Vercel frontend -> Render backend) - CO
   };
 
   res.status(statusCode).cookie("token", token, options).json({
