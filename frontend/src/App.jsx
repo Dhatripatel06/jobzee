@@ -27,12 +27,12 @@ import Cookies from "js-cookie";
 
 const App = () => {
   const { isAuthorized, setIsAuthorized, setUser } = useContext(Context);
-  
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const response = await axios.get(
-          "https://jobzee-two.vercel.app/",
+          "https://jobzee-two.vercel.app/api/v1/user/getuser",
           {
             withCredentials: true,
           }
@@ -40,7 +40,7 @@ const App = () => {
         console.log("User fetched:", response.data);
         setUser(response.data.user);
         setIsAuthorized(true);
-        
+
         // Initialize socket connection after user is fetched
         const token = localStorage.getItem("token");
         console.log("Token from localStorage:", token ? "present" : "missing");
@@ -89,7 +89,7 @@ const App = () => {
           </Routes>
         </main>
         <Footer />
-        <Toaster 
+        <Toaster
           position="top-right"
           toastOptions={{
             duration: 3000,
