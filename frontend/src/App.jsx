@@ -27,7 +27,7 @@ import socketService from "./services/socketService";
 import Cookies from "js-cookie";
 
 const App = () => {
-  const { isAuthorized, setIsAuthorized, setUser } = useContext(Context);
+  const { isAuthorized, setIsAuthorized, setUser } = useContext(Context); // Global state
 
   useEffect(() => {
     const fetchUser = async () => {

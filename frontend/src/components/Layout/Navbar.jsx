@@ -11,7 +11,7 @@ import socketService from "../../services/socketService";
 
 const Navbar = () => {
   const [show, setShow] = useState(false);
-  const { isAuthorized, setIsAuthorized, user } = useContext(Context);
+  const { isAuthorized, setIsAuthorized, user } = useContext(Context); // Auth context
   const navigateTo = useNavigate();
 
   const handleLogout = async () => {
