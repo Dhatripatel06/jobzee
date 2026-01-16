@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import fileUpload from "express-fileupload";
+import { tmpdir } from "os";
 
 import { dbConnection } from "./database/dbConnection.js";
 import jobRouter from "./routes/jobRouter.js";
@@ -49,7 +50,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(
   fileUpload({
     useTempFiles: true,
-    tempFileDir: "/tmp/",
+    tempFileDir: tmpdir(),
   })
 );
 
