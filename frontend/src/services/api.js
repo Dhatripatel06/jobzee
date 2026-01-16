@@ -103,22 +103,22 @@ export const resetPassword = async (data) => {
 // ==================== CONNECTION SYSTEM APIs ====================
 
 export const addConnection = async (userId) => {
-  const response = await api.post(`/user/connect/${userId}`);
+  const response = await api.post(`/api/v1/user/connect/${userId}`);
   return response.data;
 };
 
 export const removeConnection = async (userId) => {
-  const response = await api.delete(`/user/connect/${userId}`);
+  const response = await api.delete(`/api/v1/user/connect/${userId}`);
   return response.data;
 };
 
 export const getConnections = async () => {
-  const response = await api.get("/user/connections");
+  const response = await api.get("/api/v1/user/connections");
   return response.data;
 };
 
 export const getConnectionStatus = async (userId) => {
-  const response = await api.get(`/user/connection-status/${userId}`);
+  const response = await api.get(`/api/v1/user/connection-status/${userId}`);
   return response.data;
 };
 
