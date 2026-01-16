@@ -16,7 +16,7 @@ const MyJobs = () => {
 
   const navigateTo = useNavigate();
 
-  //Fetching all jobs
+  //Fetching all jobs (Protected)
   useEffect(() => {
     const fetchJobs = async () => {
       // Don't fetch if not authorized

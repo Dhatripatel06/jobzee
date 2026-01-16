@@ -18,7 +18,7 @@ const MyApplications = () => {
   const navigateTo = useNavigate();
 
   useEffect(() => {
-    // Handle unauthorized access
+    // Handle unauthorized access (Security check)
     if (!isAuthorized) {
       navigateTo("/");
       return;
