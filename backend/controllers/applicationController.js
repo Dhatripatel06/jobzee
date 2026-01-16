@@ -275,6 +275,7 @@ export const postApplication = catchAsyncError(async (req, res, next) => {
     }
   );
 
+  
   console.log('=== CLOUDINARY UPLOAD COMPLETE ===');
   console.log('Response URL:', cloudinaryResponse.secure_url);
   console.log('Contains /raw/upload/:', cloudinaryResponse.secure_url.includes('/raw/upload/'));
