@@ -24,7 +24,7 @@ const EmployeeList = () => {
         page: currentPage,
         limit: 20,
       };
-      
+
       if (search) params.search = search;
       if (skills) params.skills = skills;
 
@@ -110,96 +110,95 @@ const EmployeeList = () => {
                   >
                     <Link to={`/employee/${employee._id}`} className="block">
                       <div className="p-6">
-                      {/* Profile Photo */}
-                      <div className="flex justify-center mb-4">
-                        {employee.profilePhoto?.url ? (
-                          <img
-                            src={employee.profilePhoto.url}
-                            alt={employee.name}
-                            className="w-24 h-24 rounded-full object-cover border-4 border-blue-100"
-                          />
-                        ) : (
-                          <FaUserCircle className="w-24 h-24 text-gray-300" />
+                        {/* Profile Photo */}
+                        <div className="flex justify-center mb-4">
+                          {employee.profilePhoto?.url ? (
+                            <img
+                              src={employee.profilePhoto.url}
+                              alt={employee.name}
+                              className="w-24 h-24 rounded-full object-cover border-4 border-blue-100"
+                            />
+                          ) : (
+                            <FaUserCircle className="w-24 h-24 text-gray-300" />
+                          )}
+                        </div>
+
+                        {/* Name & Status */}
+                        <div className="text-center mb-4">
+                          <h3 className="text-xl font-semibold text-gray-900 mb-1">
+                            {employee.name}
+                          </h3>
+                          <div className="flex items-center justify-center gap-2">
+                            <span
+                              className={`w-3 h-3 rounded-full ${employee.isOnline ? "bg-green-500" : "bg-gray-400"
+                                }`}
+                            ></span>
+                            <span className="text-sm text-gray-600">
+                              {employee.isOnline
+                                ? "Online"
+                                : `Last seen ${new Date(employee.lastSeen).toLocaleDateString()}`}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Bio */}
+                        {employee.bio && (
+                          <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+                            {employee.bio}
+                          </p>
+                        )}
+
+                        {/* Skills */}
+                        {employee.skills && employee.skills.length > 0 && (
+                          <div className="mb-4">
+                            <div className="flex flex-wrap gap-2">
+                              {employee.skills.slice(0, 3).map((skill, index) => (
+                                <span
+                                  key={index}
+                                  className="px-3 py-1 bg-blue-100 text-blue-700 text-xs rounded-full"
+                                >
+                                  {skill}
+                                </span>
+                              ))}
+                              {employee.skills.length > 3 && (
+                                <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
+                                  +{employee.skills.length - 3} more
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Experience */}
+                        {employee.experience && employee.experience.length > 0 && (
+                          <p className="text-sm text-gray-600">
+                            <span className="font-semibold">Experience:</span>{" "}
+                            {employee.experience[0].role} at {employee.experience[0].company}
+                          </p>
                         )}
                       </div>
 
-                      {/* Name & Status */}
-                      <div className="text-center mb-4">
-                        <h3 className="text-xl font-semibold text-gray-900 mb-1">
-                          {employee.name}
-                        </h3>
-                        <div className="flex items-center justify-center gap-2">
-                          <span
-                            className={`w-3 h-3 rounded-full ${
-                              employee.isOnline ? "bg-green-500" : "bg-gray-400"
-                            }`}
-                          ></span>
-                          <span className="text-sm text-gray-600">
-                            {employee.isOnline
-                              ? "Online"
-                              : `Last seen ${new Date(employee.lastSeen).toLocaleDateString()}`}
-                          </span>
-                        </div>
+                      <div className="px-6 py-4 bg-gray-50 border-t">
+                        <button className="w-full text-blue-600 font-semibold hover:text-blue-700 transition-colors">
+                          View Full Profile →
+                        </button>
                       </div>
+                    </Link>
 
-                      {/* Bio */}
-                      {employee.bio && (
-                        <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                          {employee.bio}
-                        </p>
-                      )}
-
-                      {/* Skills */}
-                      {employee.skills && employee.skills.length > 0 && (
-                        <div className="mb-4">
-                          <div className="flex flex-wrap gap-2">
-                            {employee.skills.slice(0, 3).map((skill, index) => (
-                              <span
-                                key={index}
-                                className="px-3 py-1 bg-blue-100 text-blue-700 text-xs rounded-full"
-                              >
-                                {skill}
-                              </span>
-                            ))}
-                            {employee.skills.length > 3 && (
-                              <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
-                                +{employee.skills.length - 3} more
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Experience */}
-                      {employee.experience && (
-                        <p className="text-sm text-gray-600">
-                          <span className="font-semibold">Experience:</span>{" "}
-                          {employee.experience}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="px-6 py-4 bg-gray-50 border-t">
-                      <button className="w-full text-blue-600 font-semibold hover:text-blue-700 transition-colors">
-                        View Full Profile →
+                    {/* Message Button */}
+                    <div className="px-6 py-4 border-t">
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          navigate(`/chat?userId=${employee._id}`);
+                        }}
+                        className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-[#2d5649] text-white font-semibold rounded-lg hover:bg-[#3d7359] transition-colors"
+                      >
+                        <FaComments />
+                        Send Message
                       </button>
                     </div>
-                  </Link>
-
-                  {/* Message Button */}
-                  <div className="px-6 py-4 border-t">
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        navigate(`/chat?userId=${employee._id}`);
-                      }}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-[#2d5649] text-white font-semibold rounded-lg hover:bg-[#3d7359] transition-colors"
-                    >
-                      <FaComments />
-                      Send Message
-                    </button>
                   </div>
-                </div>
                 ))}
               </div>
             )}
