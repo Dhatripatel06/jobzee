@@ -141,98 +141,24 @@ export const jobseekerDeleteApplication = catchAsyncError(
 
 // Proxy endpoint to serve resume files with authentication
 export const getResume = catchAsyncError(async (req, res, next) => {
-  console.log('getResume called with params:', req.params);
-  console.log('getResume query:', req.query);
-  console.log('getResume cookies:', req.cookies);
-  console.log('getResume user:', req.user ? 'authenticated' : 'not authenticated');
-
   const { id } = req.params;
   const application = await Application.findById(id);
 
   if (!application) {
-    console.log('Application not found for id:', id);
     return next(new ErrorHandler("Application not found!", 404));
   }
-
-  console.log('Application found:', application._id);
-  console.log('Resume URL:', application.resume.url);
 
   // Check authorization
   const isApplicant = application.applicantID.user.toString() === req.user._id.toString();
   const isEmployer = application.employerID.user.toString() === req.user._id.toString();
 
-  console.log('Authorization check - isApplicant:', isApplicant, 'isEmployer:', isEmployer);
-
   if (!isApplicant && !isEmployer) {
-    console.log('User not authorized to view this resume');
     return next(new ErrorHandler("You are not authorized to view this resume.", 403));
   }
 
-  // For images, redirect directly
-  const url = application.resume.url.toLowerCase();
-  const isImageFile = url.includes('.jpg') || url.includes('.jpeg') || url.includes('.png') || url.includes('.webp') || url.includes('.gif');
-  const isCloudinaryImage = url.includes('cloudinary.com') && url.includes('/image/upload/') && isImageFile;
-
-  if (isCloudinaryImage) {
-    console.log('Redirecting to direct image URL:', application.resume.url);
-    return res.redirect(application.resume.url);
-  }
-
-  console.log('Testing direct URL access for resume:', application.resume.url);
-
-  try {
-    const https = await import('https');
-
-    // Use getAuthenticatedUrl to generate a signed URL for fetching
-    // This handles both proper private_cdn access and fallback signed URLs
-    let directUrl = getAuthenticatedUrl(application.resume.public_id);
-
-    if (!directUrl) {
-      console.log('Failed to generate authenticated URL, falling back to stored URL');
-      directUrl = application.resume.url.replace('http://', 'https://');
-    }
-
-    console.log('Attempting direct access to:', directUrl);
-
-    // Try direct access first - if access_control: anonymous worked, this should succeed
-    https.get(directUrl, (response) => {
-      console.log('Direct URL response status:', response.statusCode);
-      console.log('Response headers:', JSON.stringify(response.headers, null, 2));
-
-      if (response.statusCode === 200) {
-        console.log('✓ SUCCESS! Direct URL is publicly accessible');
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', 'inline');
-        res.setHeader('Cache-Control', 'no-cache');
-        res.setHeader('Access-Control-Allow-Origin', '*');
-
-        response.pipe(res);
-
-        response.on('end', () => {
-          console.log('PDF streamed successfully via direct URL');
-        });
-      } else if (response.statusCode === 401) {
-        console.error('✗ FAILED: Still getting 401 - access_control setting did not work');
-        console.error('x-cld-error:', response.headers['x-cld-error']);
-        return next(new ErrorHandler(
-          "PDF access denied. Your Cloudinary account has ACL restrictions. " +
-          "Please go to Cloudinary Dashboard → Settings → Security → Access Control " +
-          "and enable public access for uploads, or use a different Cloudinary account.",
-          401
-        ));
-      } else {
-        console.error('Unexpected status:', response.statusCode);
-        return next(new ErrorHandler("Unable to access resume file.", response.statusCode));
-      }
-    }).on('error', (error) => {
-      console.error('Request error:', error);
-      return next(new ErrorHandler("Failed to load resume", 500));
-    });
-
-  } catch (error) {
-    console.error('Error in getResume:', error);
-    return next(new ErrorHandler("Failed to load resume", 500));
-  }
+  // Simply redirect to the Cloudinary URL
+  // The files are uploaded as public ('upload' type), so direct access works
+  res.redirect(application.resume.url);
 });
 
 export const postApplication = catchAsyncError(async (req, res, next) => {
