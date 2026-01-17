@@ -156,9 +156,35 @@ export const getResume = catchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler("You are not authorized to view this resume.", 403));
   }
 
-  // Simply redirect to the Cloudinary URL
-  // The files are uploaded as public ('upload' type), so direct access works
-  res.redirect(application.resume.url);
+  const resumeUrl = application.resume.url;
+  console.log('Proxying resume from:', resumeUrl);
+
+  // Dynamic import for https module
+  const https = await import("https");
+
+  // Fetch the file from Cloudinary and pipe it to the response with inline header
+  https.get(resumeUrl, (stream) => {
+    if (stream.statusCode !== 200) {
+      console.error('Cloudinary response status:', stream.statusCode);
+      return next(new ErrorHandler("Failed to fetch resume from storage", stream.statusCode));
+    }
+
+    // Explicitly set headers to force inline view
+    // Cloudinary raw files are usually generic, but we can assume PDF for application resumes 
+    // or try to detect from extension if needed. For now, defaulting to application/pdf for the iframe.
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `inline; filename="resume.pdf"`);
+
+    // Forward other useful headers
+    if (stream.headers['content-length']) {
+      res.setHeader("Content-Length", stream.headers['content-length']);
+    }
+
+    stream.pipe(res);
+  }).on('error', (err) => {
+    console.error('Proxy error:', err);
+    next(new ErrorHandler("Failed to load resume", 500));
+  });
 });
 
 export const postApplication = catchAsyncError(async (req, res, next) => {
