@@ -48,60 +48,60 @@ export const getUserPublicProfile = async (id) => {
 };
 
 export const getEmployerJobs = async (employerId) => {
-  const response = await api.get(`/job/getall?postedBy=${employerId}`);
+  const response = await api.get(`/api/v1/job/getall?postedBy=${employerId}`);
   return response.data;
 };
 
 // ==================== MESSAGING APIs ====================
 
 export const sendMessage = async (data) => {
-  const response = await api.post("/message/send", data);
+  const response = await api.post("/api/v1/message/send", data);
   return response.data;
 };
 
 export const getConversations = async () => {
-  const response = await api.get("/message/conversations");
+  const response = await api.get("/api/v1/message/conversations");
   return response.data;
 };
 
 export const getMessages = async (conversationId, page = 1) => {
-  const response = await api.get(`/message/conversation/${conversationId}`, {
+  const response = await api.get(`/api/v1/message/conversation/${conversationId}`, {
     params: { page },
   });
   return response.data;
 };
 
 export const markMessagesAsRead = async (conversationId) => {
-  const response = await api.put(`/message/conversation/${conversationId}/read`);
+  const response = await api.put(`/api/v1/message/conversation/${conversationId}/read`);
   return response.data;
 };
 
 export const deleteMessage = async (messageId) => {
-  const response = await api.delete(`/message/message/${messageId}`);
+  const response = await api.delete(`/api/v1/message/message/${messageId}`);
   return response.data;
 };
 
 // ==================== OTP LOGIN APIs ====================
 
 export const sendOTPForLogin = async (data) => {
-  const response = await api.post("/user/otp/send", data);
+  const response = await api.post("/api/v1/user/otp/send", data);
   return response.data;
 };
 
 export const verifyOTPAndLogin = async (data) => {
-  const response = await api.post("/user/otp/verify", data);
+  const response = await api.post("/api/v1/user/otp/verify", data);
   return response.data;
 };
 
 // ==================== FORGOT PASSWORD APIs ====================
 
 export const forgotPassword = async (data) => {
-  const response = await api.post("/user/password/forgot", data);
+  const response = await api.post("/api/v1/user/password/forgot", data);
   return response.data;
 };
 
 export const resetPassword = async (data) => {
-  const response = await api.post("/user/password/reset", data);
+  const response = await api.post("/api/v1/user/password/reset", data);
   return response.data;
 };
 
