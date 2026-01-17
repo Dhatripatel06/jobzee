@@ -37,6 +37,11 @@ export const updateEmployeeProfile = async (formData) => {
 
 // ==================== EMPLOYER PROFILE APIs ====================
 
+export const getEmployerProfile = async (id) => {
+  const response = await api.get(`/api/v1/user/employee/${id}`);
+  return response.data;
+};
+
 export const getUserPublicProfile = async (id) => {
   const response = await api.get(`/api/v1/user/employee/${id}`); // Using same endpoint as it returns any user
   return response.data;
