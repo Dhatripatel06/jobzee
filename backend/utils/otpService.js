@@ -9,11 +9,14 @@ export const generateOTP = () => {
 // Email transporter configuration
 const createEmailTransporter = () => {
   return nodemailer.createTransport({
-    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true, // important for port 465
     auth: {
       user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASSWORD, // Use App Password for Gmail
+      pass: process.env.EMAIL_PASSWORD,
     },
+    connectionTimeout: 10000,
   });
 };
 
